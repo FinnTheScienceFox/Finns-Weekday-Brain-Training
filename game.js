@@ -1,5 +1,5 @@
 // ========================================
-// DOOMSDAY TRAINER
+// FINN'S WEEKDAY BRAIN TRAINING!
 // ========================================
 
 
@@ -32,6 +32,22 @@ const months = [
     "November",
     "December"
 ];
+
+
+// Century anchors.
+// The actual answer we teach the player is
+// 1, 2, 3, 4, or 5:
+//
+// 18 = Friday = 5
+// 19 = Wednesday = 3
+// 20 = Tuesday = 2
+// 21 = Sunday = 0
+//
+// The century number itself cycles every 4 centuries.
+//
+// We use these as the actual weekday numbers
+// internally, but Step 4 displays the numerical
+// anchor value.
 
 const centuryAnchors = {
     0: 2, // 2000s
@@ -90,6 +106,7 @@ const backHomeButton =
 // ========================================
 
 function randomInteger(min, max) {
+
     return Math.floor(
         Math.random() * (max - min + 1)
     ) + min;
@@ -155,11 +172,11 @@ function step2(year) {
     const lastTwoDigits =
         year % 100;
 
-    const remainder =
+    const leftover =
         lastTwoDigits % 12;
 
     return {
-        remainder
+        leftover
     };
 }
 
@@ -170,23 +187,24 @@ function step2(year) {
 
 function step3(year) {
 
-    const remainder =
-        step2(year).remainder;
+    const leftover =
+        step2(year).leftover;
 
     const groupsOf4 =
         Math.floor(
-            remainder / 4
+            leftover / 4
         );
 
     return {
-        remainder,
+        leftover,
         groupsOf4
     };
 }
 
 
 // ========================================
-// STEP 4 - CENTURY ANCHOR
+// STEP 4
+// CENTURY ANCHOR
 // ========================================
 
 function step4(year) {
@@ -202,7 +220,8 @@ function step4(year) {
     return {
         century,
         anchor,
-        weekday: weekdays[anchor]
+        weekday:
+            weekdays[anchor]
     };
 }
 
@@ -213,14 +232,21 @@ function step4(year) {
 
 function step5(year) {
 
-    const s1 = step1(year);
-    const s2 = step2(year);
-    const s3 = step3(year);
-    const s4 = step4(year);
+    const s1 =
+        step1(year);
+
+    const s2 =
+        step2(year);
+
+    const s3 =
+        step3(year);
+
+    const s4 =
+        step4(year);
 
     const sum =
         s1.groupsOf12 +
-        s2.remainder +
+        s2.leftover +
         s3.groupsOf4 +
         s4.anchor;
 
@@ -239,12 +265,12 @@ function step6(year) {
     const sum =
         step5(year).sum;
 
-    const remainder =
+    const leftover =
         sum % 7;
 
     return {
         sum,
-        remainder
+        leftover
     };
 }
 
@@ -256,10 +282,11 @@ function step6(year) {
 function step7(year) {
 
     const weekdayNumber =
-        step6(year).remainder;
+        step6(year).leftover;
 
     return {
         weekdayNumber,
+
         weekdayName:
             weekdays[weekdayNumber]
     };
@@ -289,10 +316,43 @@ function isLeapYear(year) {
 
 // ========================================
 // STEP 8
+// LEAP YEAR
+// ========================================
+
+function step8(year) {
+
+    const lastTwoDigits =
+        year % 100;
+
+    let numberBeingTested;
+
+    if (lastTwoDigits === 0) {
+
+        numberBeingTested =
+            Math.floor(year / 100);
+
+    } else {
+
+        numberBeingTested =
+            lastTwoDigits;
+    }
+
+    return {
+
+        numberBeingTested,
+
+        leapYear:
+            isLeapYear(year)
+    };
+}
+
+
+// ========================================
+// STEP 9
 // MONTH'S DOOMSDAY
 // ========================================
 
-function step8(month, year) {
+function step9(month, year) {
 
     const leapYear =
         isLeapYear(year);
@@ -332,51 +392,11 @@ function step8(month, year) {
     };
 
     return {
+
         doomsdayDate:
             doomsdayDates[month],
 
         leapYear
-    };
-}
-
-
-// ========================================
-// STEP 9
-// LEAP YEAR CHECK
-// ========================================
-
-function step9(year) {
-
-    const lastTwoDigits =
-        year % 100;
-
-    let numberBeingTested;
-
-    if (lastTwoDigits === 0) {
-
-        numberBeingTested =
-            Math.floor(year / 100);
-
-    } else {
-
-        numberBeingTested =
-            lastTwoDigits;
-    }
-
-    const groupsOf4 =
-        Math.floor(
-            numberBeingTested / 4
-        );
-
-    const remainder =
-        numberBeingTested % 4;
-
-    return {
-        numberBeingTested,
-        groupsOf4,
-        remainder,
-        leapYear:
-            remainder === 0
     };
 }
 
@@ -391,11 +411,22 @@ function step10(month, day, year) {
         step7(year);
 
     const monthDoomsday =
-        step8(month, year);
+        step9(month, year);
 
     const difference =
         day -
         monthDoomsday.doomsdayDate;
+
+    const absoluteDifference =
+        Math.abs(difference);
+
+    const fullWeeks =
+        Math.floor(
+            absoluteDifference / 7
+        );
+
+    const remainingDays =
+        absoluteDifference % 7;
 
     const finalWeekday =
         (
@@ -405,6 +436,7 @@ function step10(month, day, year) {
         ) % 7;
 
     return {
+
         doomsdayDate:
             monthDoomsday.doomsdayDate,
 
@@ -412,6 +444,12 @@ function step10(month, day, year) {
             yearDoomsday.weekdayNumber,
 
         difference,
+
+        absoluteDifference,
+
+        fullWeeks,
+
+        remainingDays,
 
         finalWeekday,
 
@@ -425,7 +463,11 @@ function step10(month, day, year) {
 // COMPLETE SOLUTION
 // ========================================
 
-function solveDate(month, day, year) {
+function solveDate(
+    month,
+    day,
+    year
+) {
 
     return {
 
@@ -457,10 +499,10 @@ function solveDate(month, day, year) {
             step7(year),
 
         step8:
-            step8(month, year),
+            step8(year),
 
         step9:
-            step9(year),
+            step9(month, year),
 
         step10:
             step10(
@@ -477,14 +519,16 @@ function solveDate(month, day, year) {
 // ========================================
 
 let currentDate;
+
 let solution;
-let currentStep;
 
+let currentStep = 1;
 
-// Used specifically for Step 5.
-// This lets us temporarily reveal the
-// sidebar when the player needs help.
+// Step 10 has two parts.
+let step10Part = 0;
 
+// Used to prevent repeatedly hiding/showing
+// Step 1-4 during Step 5.
 let step5HelpShown = false;
 
 
@@ -532,8 +576,10 @@ function selectMode(mode) {
 
 function capitalize(text) {
 
-    return text.charAt(0).toUpperCase() +
-        text.slice(1);
+    return (
+        text.charAt(0).toUpperCase() +
+        text.slice(1)
+    );
 }
 
 
@@ -562,6 +608,8 @@ function startTutorial() {
         );
 
     currentStep = 1;
+
+    step10Part = 0;
 
     step5HelpShown = false;
 
@@ -612,7 +660,8 @@ function resetSidebar() {
         item.classList.remove(
             "active",
             "completed",
-            "revealed"
+            "revealed",
+            "hidden"
         );
 
         const result =
@@ -632,7 +681,12 @@ function setSidebarActive(step) {
             `sidebar-step-${step}`
         );
 
-    item.classList.add("active");
+    if (item) {
+
+        item.classList.add(
+            "active"
+        );
+    }
 }
 
 
@@ -646,9 +700,15 @@ function completeSidebarStep(
             `sidebar-step-${step}`
         );
 
-    item.classList.remove("active");
+    if (!item) return;
 
-    item.classList.add("completed");
+    item.classList.remove(
+        "active"
+    );
+
+    item.classList.add(
+        "completed"
+    );
 
     const result =
         item.querySelector(
@@ -660,20 +720,11 @@ function completeSidebarStep(
 }
 
 
-function revealSidebarStep(step) {
+// ========================================
+// PERMANENTLY REMOVE STEPS 1-4
+// ========================================
 
-    const item =
-        document.getElementById(
-            `sidebar-step-${step}`
-        );
-
-    item.classList.add(
-        "revealed"
-    );
-}
-
-
-function hideSidebarSteps1to4() {
+function permanentlyRemoveSteps1to4() {
 
     for (
         let i = 1;
@@ -686,35 +737,16 @@ function hideSidebarSteps1to4() {
                 `sidebar-step-${i}`
             );
 
-        item.classList.add(
-            "hidden"
-        );
-    }
-}
+        if (item) {
 
-
-function showSidebarSteps1to4() {
-
-    for (
-        let i = 1;
-        i <= 4;
-        i++
-    ) {
-
-        const item =
-            document.getElementById(
-                `sidebar-step-${i}`
-            );
-
-        item.classList.remove(
-            "hidden"
-        );
+            item.remove();
+        }
     }
 }
 
 
 // ========================================
-// SHOW STEP
+// SHOW CURRENT STEP
 // ========================================
 
 function showCurrentStep() {
@@ -732,17 +764,9 @@ function showCurrentStep() {
         "hidden"
     );
 
-    // Reset temporary Step 5 help.
-    if (currentStep !== 5) {
-
-        step5HelpShown = false;
-
-        showSidebarSteps1to4();
-    }
-
-
-    // Mark current sidebar step active.
-    setSidebarActive(currentStep);
+    setSidebarActive(
+        currentStep
+    );
 
 
     switch (currentStep) {
@@ -784,10 +808,14 @@ function showCurrentStep() {
             break;
 
         case 10:
-            showStep10();
+            showStep10Part1();
             break;
 
         case 11:
+            showStep10Part2();
+            break;
+
+        case 12:
             showCompletion();
             break;
     }
@@ -807,9 +835,15 @@ function showStep1() {
         solution.step1;
 
     question.innerHTML =
-        `Take the last two digits of the year.<br><br>
-         How many times can 12 fit into
-         <strong>${result.lastTwoDigits}</strong>?`;
+        `The last two digits of the year are
+        <strong>${result.lastTwoDigits}</strong>.<br><br>
+
+        How many groups of 12 can we make
+        out of ${result.lastTwoDigits}?
+
+        <br><br>
+
+        <em>(Remember this answer!)</em>`;
 
     createNumberButtons(
         0,
@@ -826,7 +860,7 @@ function showStep1() {
 function showStep2() {
 
     stepTitle.textContent =
-        "Step 2: Find the Remainder";
+        "Step 2: What's Left Over?";
 
     const result =
         solution.step2;
@@ -835,15 +869,22 @@ function showStep2() {
         solution.step1.lastTwoDigits;
 
     question.innerHTML =
-        `Take away 12 from
-         <strong>${lastTwo}</strong>
-         until you can't anymore.<br><br>
-         What is left over?`;
+        `For the last two digits,
+        <strong>${lastTwo}</strong>,
+        take 12 away until you can't anymore.
+
+        <br><br>
+
+        What's left over?
+
+        <br><br>
+
+        <em>(Remember this answer!)</em>`;
 
     createNumberButtons(
         0,
         11,
-        result.remainder
+        result.leftover
     );
 }
 
@@ -861,9 +902,17 @@ function showStep3() {
         solution.step3;
 
     question.innerHTML =
-        `Take the remainder from Step 2:
-         <strong>${result.remainder}</strong>.<br><br>
-         How many times can 4 fit into it?`;
+        `Take the answer from the last step,
+        <strong>${result.leftover}</strong>.
+
+        <br><br>
+
+        How many groups of 4 can we make
+        out of ${result.leftover}?
+
+        <br><br>
+
+        <em>(Remember this answer!)</em>`;
 
     createNumberButtons(
         0,
@@ -887,10 +936,32 @@ function showStep4() {
 
     question.innerHTML =
         `The first two digits of the year are
-         <strong>${result.century}</strong>.<br><br>
-         What is the century anchor?`;
+        <strong>${result.century}</strong>.
 
-    createWeekdayButtons(
+        <br><br>
+
+        Remember the repeating pattern for
+        <em>century anchors</em>:
+
+        <br><br>
+
+        18 = Friday (5)<br>
+        19 = Wednesday (3)<br>
+        20 = Tuesday (2)<br>
+        21 = Sunday (0)
+
+        <br><br>
+
+        Using the cycle above, what is the
+        <em>century anchor</em>?
+
+        <br><br>
+
+        <em>(Remember this answer!)</em>`;
+
+    createNumberButtons(
+        0,
+        6,
         result.anchor
     );
 }
@@ -905,31 +976,25 @@ function showStep5() {
     stepTitle.textContent =
         "Step 5: Add Everything";
 
-    // Hide Steps 1-4 to force recall.
-    hideSidebarSteps1to4();
-
-    const s1 =
-        solution.step1.groupsOf12;
-
-    const s2 =
-        solution.step2.remainder;
-
-    const s3 =
-        solution.step3.groupsOf4;
-
-    const s4 =
-        solution.step4.anchor;
+    const result =
+        solution.step5;
 
     question.innerHTML =
-        `Now remember the four results
-         you just calculated.<br><br>
-         Add them together.<br><br>
-         <strong>What is the total?</strong>`;
+        `Hopefully you've memorized your
+        answers so far!
+
+        <br><br>
+
+        Add these results together...
+
+        <br><br>
+
+        <strong>What's the result?</strong>`;
 
     createNumberButtons(
         0,
         30,
-        solution.step5.sum
+        result.sum
     );
 }
 
@@ -943,18 +1008,22 @@ function showStep6() {
     stepTitle.textContent =
         "Step 6: Reduce by 7";
 
-    const sum =
-        solution.step5.sum;
+    const result =
+        solution.step6;
 
     question.innerHTML =
-        `Take away 7 repeatedly from
-         <strong>${sum}</strong>.<br><br>
-         What is the remainder?`;
+        `For last question's sum,
+        <strong>${result.sum}</strong>,
+        take 7 away until you can't anymore.
+
+        <br><br>
+
+        What's left over?`;
 
     createNumberButtons(
         0,
         6,
-        solution.step6.remainder
+        result.leftover
     );
 }
 
@@ -966,107 +1035,90 @@ function showStep6() {
 function showStep7() {
 
     stepTitle.textContent =
-        "Step 7: Find the Doomsday";
+        "Step 7: Find the Year's Doomsday";
 
-    const answer =
-        solution.step7.weekdayNumber;
+    const result =
+        solution.step7;
 
     question.innerHTML =
-        `Use your weekday mnemonic.<br><br>
-         What weekday is number
-         <strong>${answer}</strong>?`;
+        `This leftover number is the weekday
+        of ${currentDate.year}'s Doomsday dates!
+
+        <br><br>
+
+        Remember the mnemonic for numbered
+        weekdays:
+
+        <br><br>
+
+        0 = "NONEday" (Sunday)<br>
+        1 = "ONEday" (Monday)<br>
+        2 = "TWOsday" (Tuesday)<br>
+        3 = THREE syllables (Wednesday)<br>
+        4 = "FOURsday" (Thursday)<br>
+        5 = "FIVEday" (Friday)<br>
+        6 = "SIXurday" (Saturday)
+
+        <br><br>
+
+        Using the mnemonic above, what weekday
+        does this number represent?`;
 
     createWeekdayButtons(
-        answer
+        result.weekdayNumber
     );
 }
 
 
 // ========================================
 // STEP 8
+// LEAP YEAR
 // ========================================
 
 function showStep8() {
 
     stepTitle.textContent =
-        "Step 8: Find the Month's Doomsday";
-
-    const month =
-        currentDate.month;
-
-    const answer =
-        solution.step8.doomsdayDate;
-
-    let prompt =
-        `What is the memorized Doomsday date
-         for <strong>${months[month]}</strong>?`;
-
-    // For January/February, explain that
-    // there are two possibilities and Step 9
-    // will determine which one applies.
-
-    if (
-        month === 1 ||
-        month === 2
-    ) {
-
-        prompt += `
-            <br><br>
-            Remember: January and February
-            have different dates in leap years.
-        `;
-    }
-
-    question.innerHTML =
-        prompt;
-
-    createNumberButtons(
-        1,
-        new Date(
-            currentDate.year,
-            month,
-            0
-        ).getDate(),
-        answer
-    );
-}
-
-
-// ========================================
-// STEP 9
-// ========================================
-
-function showStep9() {
-
-    stepTitle.textContent =
-        "Step 9: Check for a Leap Year";
+        "Step 8: Is It a Leap Year?";
 
     const result =
-        solution.step9;
+        solution.step8;
 
-    let explanation;
+    const lastTwo =
+        currentDate.year % 100;
 
-    if (
-        result.numberBeingTested ===
-        0
-    ) {
+    let numberText;
 
-        explanation =
-            `Use the century's first two digits.`;
+    if (lastTwo === 0) {
+
+        const firstTwo =
+            Math.floor(
+                currentDate.year / 100
+            );
+
+        numberText =
+            `The last two digits are
+            <strong>00</strong>.
+
+            <br><br>
+
+            In this special case, use the
+            first two digits instead:
+            <strong>${firstTwo}</strong>.`;
 
     } else {
 
-        explanation =
-            `Use the last two digits:
-             <strong>
-             ${result.numberBeingTested}
-             </strong>.`;
+        numberText =
+            `The last two digits of the year are
+            <strong>${lastTwo}</strong>.`;
     }
 
     question.innerHTML =
-        `${explanation}<br><br>
-         Can you divide it by 4
-         with no remainder?`;
+        `${numberText}
+
+        <br><br>
+
+        Can you make groups of 4 with
+        <strong>NO leftovers</strong>?`;
 
     createYesNoButtons(
         result.leapYear
@@ -1075,43 +1127,67 @@ function showStep9() {
 
 
 // ========================================
-// STEP 10 - PART 1
+// STEP 9
+// MONTH'S DOOMSDAY
 // ========================================
 
-function showStep10() {
+function showStep9() {
 
     stepTitle.textContent =
-        "Step 10: Find the Final Date";
+        "Step 9: Find the Month's Doomsday";
 
     const result =
-        solution.step10;
+        solution.step9;
+
+    const leapText =
+        result.leapYear
+            ? "is"
+            : "is not";
+
+    const numberText =
+        result.leapYear
+            ? "second"
+            : "first";
 
     question.innerHTML =
-        `First, let's figure out how far the
-         target date is from the month's
-         Doomsday.<br><br>
+        `Each month has a Doomsday date:
 
-         The month's Doomsday is
-         <strong>
-         ${months[currentDate.month]}
-         ${result.doomsdayDate}
-         </strong>.<br><br>
+        <br><br>
 
-         How many days away is the target date?`;
+        1/3-4, 2/28-29, 3/14, 4/4,
+        5/9, 6/6, 7/11, 8/8,
+        9/5, 10/10, 11/7, and 12/12
 
-    createNumberButtons(
-        -31,
-        31,
-        result.difference
+        <br><br>
+
+        This year
+        <strong>${leapText}</strong>
+        a leap year, which means the
+        <strong>${numberText}</strong>
+        number for January and February
+        is their Doomsday date.
+
+        <br><br>
+
+        What is the Doomsday date for
+        <strong>${months[currentDate.month]}</strong>?`;
+
+    // Only show valid dates for this month.
+    // For example, March should offer 14,
+    // rather than every possible day.
+
+    createMonthDoomsdayButtons(
+        currentDate.month,
+        result.doomsdayDate
     );
 }
 
 
 // ========================================
-// STEP 10 - PART 2
+// STEP 10 PART 1
 // ========================================
 
-function showStep10Part2() {
+function showStep10Part1() {
 
     stepTitle.textContent =
         "Step 10: Count by Weeks";
@@ -1119,111 +1195,115 @@ function showStep10Part2() {
     const result =
         solution.step10;
 
-    const difference =
-        result.difference;
-
     const direction =
-        difference >= 0
+        result.difference >= 0
             ? "forward"
-            : "backward";
-
-    const absoluteDifference =
-        Math.abs(difference);
+            : "back";
 
     question.innerHTML =
-        `Now use the fact that every 7 days
-         lands on the same weekday.<br><br>
+        `Every 7 days lands on the same weekday.
 
-         Start at
-         <strong>
-         ${months[currentDate.month]}
-         ${result.doomsdayDate}
-         </strong>,
-         which was a
-         <strong>
-         ${solution.step7.weekdayName}
-         </strong>.<br><br>
+        <br><br>
 
-         Count ${direction} in increments of
-         7 until you're within one week of
-         the target date.<br><br>
+        Starting at our Doomsday date
+        <strong>
+        ${months[currentDate.month]}
+        ${result.doomsdayDate}
+        </strong>,
 
-         How many full weeks can you move?`;
+        which was a
+        <strong>
+        ${solution.step7.weekdayName}
+        </strong>,
 
-    const fullWeeks =
-        Math.floor(
-            absoluteDifference / 7
-        );
+        count ${direction} by 7 until you're
+        within one week of the target date.
+
+        <br><br>
+
+        <strong>
+        How many full weeks can you move?
+        </strong>`;
 
     createNumberButtons(
         0,
         4,
-        fullWeeks
+        result.fullWeeks
     );
 }
 
 
 // ========================================
-// STEP 10 - PART 3
+// STEP 10 PART 2
 // ========================================
 
-function showStep10Part3() {
+function showStep10Part2() {
 
     stepTitle.textContent =
-        "Step 10: Finish the Count";
+        "Step 10: Find the Weekday";
 
     const result =
         solution.step10;
 
-    const difference =
-        result.difference;
-
-    const absoluteDifference =
-        Math.abs(difference);
-
-    const fullWeeks =
-        Math.floor(
-            absoluteDifference / 7
-        );
-
-    const remainingDays =
-        absoluteDifference % 7;
-
     const direction =
-        difference >= 0
+        result.difference >= 0
             ? "forward"
             : "backward";
 
-    let intermediateDate =
+    const aheadBehind =
+        result.difference >= 0
+            ? "ahead of"
+            : "behind";
+
+    const weeks =
+        result.fullWeeks === 1
+            ? "week"
+            : "weeks";
+
+    const days =
+        result.remainingDays === 1
+            ? "day"
+            : "days";
+
+    // Determine the date after moving
+    // the full weeks.
+
+    let intermediateDay =
         result.doomsdayDate;
 
-    if (difference >= 0) {
+    if (result.difference >= 0) {
 
-        intermediateDate +=
-            fullWeeks * 7;
+        intermediateDay +=
+            result.fullWeeks * 7;
 
     } else {
 
-        intermediateDate -=
-            fullWeeks * 7;
+        intermediateDay -=
+            result.fullWeeks * 7;
     }
 
     question.innerHTML =
-        `Excellent.<br><br>
+        `Great, you've moved
+        <strong>${result.fullWeeks}</strong>
+        ${weeks} ${direction}!
 
-         You moved ${fullWeeks} full week(s)
-         ${direction}.<br><br>
+        <br><br>
 
-         Now you're at
-         <strong>
-         ${months[currentDate.month]}
-         ${intermediateDate}
-         </strong>.<br><br>
+        You are now at
+        <strong>
+        ${months[currentDate.month]}
+        ${intermediateDay}
+        </strong>,
 
-         You are ${remainingDays} day(s)
-         away from the target.<br><br>
+        and are
+        <strong>${result.remainingDays}</strong>
+        ${days} ${aheadBehind} your target.
 
-         Which weekday is the target date?`;
+        <br><br>
+
+        <strong>
+        Which weekday is the target date?
+        </strong>`;
 
     createWeekdayButtons(
         result.finalWeekday
@@ -1382,6 +1462,79 @@ function createYesNoButtons(
 
 
 // ========================================
+// MONTH DOOMSDAY BUTTONS
+// ========================================
+
+function createMonthDoomsdayButtons(
+    month,
+    correctAnswer
+) {
+
+    let dates = [];
+
+    if (month === 1) {
+
+        dates = [3, 4];
+
+    } else if (month === 2) {
+
+        dates = [28, 29];
+
+    } else {
+
+        const standardDates = {
+
+            3: 14,
+            4: 4,
+            5: 9,
+            6: 6,
+            7: 11,
+            8: 8,
+            9: 5,
+            10: 10,
+            11: 7,
+            12: 12
+        };
+
+        dates = [
+            standardDates[month]
+        ];
+    }
+
+    dates.forEach(
+        function(date) {
+
+            const button =
+                document.createElement(
+                    "button"
+                );
+
+            button.className =
+                "answer-button";
+
+            button.textContent =
+                `${month}/${date}`;
+
+            button.addEventListener(
+                "click",
+                function() {
+
+                    checkAnswer(
+                        date,
+                        correctAnswer
+                    );
+                }
+            );
+
+            answerArea.appendChild(
+                button
+            );
+        }
+    );
+}
+
+
+// ========================================
 // ANSWER CHECKING
 // ========================================
 
@@ -1423,6 +1576,14 @@ function handleCorrectAnswer() {
     continueButton.classList.remove(
         "hidden"
     );
+
+    // Step 5 is the moment where the
+    // memory prompts disappear forever.
+
+    if (currentStep === 5) {
+
+        permanentlyRemoveSteps1to4();
+    }
 }
 
 
@@ -1438,34 +1599,11 @@ function handleIncorrectAnswer() {
     feedback.textContent =
         "Not quite! Try again.";
 
-    // Special Step 5 behavior:
-    // reveal Steps 1-4 when the player
-    // needs help remembering them.
-
-    if (
-        currentStep === 5 &&
-        !step5HelpShown
-    ) {
-
-        step5HelpShown = true;
-
-        showSidebarSteps1to4();
-
-        for (
-            let i = 1;
-            i <= 4;
-            i++
-        ) {
-
-            revealSidebarStep(i);
-        }
-
-        feedback.innerHTML =
-            `Not quite!<br>
-             I've revealed your previous
-             four results. Use them to
-             calculate the sum, then try again.`;
-    }
+    // Step 5 deliberately does NOT reveal
+    // Steps 1-4 anymore.
+    //
+    // They are now permanently hidden after
+    // Step 5 has been reached.
 }
 
 
@@ -1491,7 +1629,7 @@ function recordSidebarResult() {
 
             completeSidebarStep(
                 2,
-                solution.step2.remainder
+                solution.step2.leftover
             );
 
             break;
@@ -1511,8 +1649,7 @@ function recordSidebarResult() {
 
             completeSidebarStep(
                 4,
-                `${solution.step4.weekday}
-                 (${solution.step4.anchor})`
+                solution.step4.anchor
             );
 
             break;
@@ -1532,7 +1669,7 @@ function recordSidebarResult() {
 
             completeSidebarStep(
                 6,
-                solution.step6.remainder
+                solution.step6.leftover
             );
 
             break;
@@ -1552,7 +1689,9 @@ function recordSidebarResult() {
 
             completeSidebarStep(
                 8,
-                solution.step8.doomsdayDate
+                solution.step8.leapYear
+                    ? "Yes"
+                    : "No"
             );
 
             break;
@@ -1562,9 +1701,7 @@ function recordSidebarResult() {
 
             completeSidebarStep(
                 9,
-                solution.step9.leapYear
-                    ? "Yes"
-                    : "No"
+                solution.step9.doomsdayDate
             );
 
             break;
@@ -1574,7 +1711,7 @@ function recordSidebarResult() {
 
             completeSidebarStep(
                 10,
-                solution.step10.finalWeekdayName
+                solution.step10.fullWeeks
             );
 
             break;
@@ -1590,137 +1727,113 @@ function getCorrectExplanation() {
 
     switch (currentStep) {
 
-        case 1: {
-
-            const r =
-                solution.step1;
+        case 1:
 
             return `
-                ✓ Correct! ${r.lastTwoDigits}
-                contains ${r.groupsOf12}
-                group(s) of 12.
+                ✓ Correct! Remember:
+                ${solution.step1.groupsOf12}.
             `;
-        }
 
 
-        case 2: {
+        case 2:
 
             return `
-                ✓ Correct! The remainder is
-                ${solution.step2.remainder}.
+                ✓ Correct! What's left over is
+                ${solution.step2.leftover}.
             `;
-        }
 
 
-        case 3: {
-
-            const r =
-                solution.step3;
+        case 3:
 
             return `
-                ✓ Correct! ${r.remainder}
-                contains ${r.groupsOf4}
-                group(s) of 4.
+                ✓ Correct! Remember:
+                ${solution.step3.groupsOf4}.
             `;
-        }
 
 
-        case 4: {
+        case 4:
 
-            const r =
-                solution.step4;
+            return `
+                ✓ Correct! The century anchor is
+                ${solution.step4.anchor}.
+            `;
+
+
+        case 5:
 
             return `
                 ✓ Correct!
-                The century anchor is
-                ${r.weekday} (${r.anchor}).
+                ${solution.step1.groupsOf12}
+                +
+                ${solution.step2.leftover}
+                +
+                ${solution.step3.groupsOf4}
+                +
+                ${solution.step4.anchor}
+                =
+                ${solution.step5.sum}.
             `;
-        }
 
 
-        case 5: {
-
-            const s1 =
-                solution.step1.groupsOf12;
-
-            const s2 =
-                solution.step2.remainder;
-
-            const s3 =
-                solution.step3.groupsOf4;
-
-            const s4 =
-                solution.step4.anchor;
-
-            const total =
-                solution.step5.sum;
+        case 6:
 
             return `
-                ✓ Correct!<br>
-                ${s1} + ${s2} + ${s3} + ${s4}
-                = ${total}.
+                ✓ Correct! What's left over is
+                ${solution.step6.leftover}.
             `;
-        }
 
 
-        case 6: {
-
-            return `
-                ✓ Correct!
-                ${solution.step5.sum}
-                reduced by 7 leaves
-                ${solution.step6.remainder}.
-            `;
-        }
-
-
-        case 7: {
+        case 7:
 
             return `
                 ✓ Correct!
                 ${solution.step7.weekdayNumber}
-                = ${solution.step7.weekdayName}.<br>
-                This year's Doomsday is
+                =
                 ${solution.step7.weekdayName}.
             `;
-        }
 
 
-        case 8: {
+        case 8:
+
+            return solution.step8.leapYear
+                ? "✓ Correct! This is a leap year."
+                : "✓ Correct! This is not a leap year.";
+
+
+        case 9:
 
             return `
                 ✓ Correct!
                 ${months[currentDate.month]}
-                ${solution.step8.doomsdayDate}
-                is the month's Doomsday.
+                ${solution.step9.doomsdayDate}
+                is this month's Doomsday.
             `;
-        }
 
 
-        case 9: {
-
-            return solution.step9.leapYear
-                ? "✓ Correct! This is a leap year."
-                : "✓ Correct! This is not a leap year.";
-        }
-
-
-        case 10: {
+        case 10:
 
             return `
-                ✓ Correct! You are
-                ${solution.step10.difference >= 0
-                    ? "forward"
-                    : "backward"}
-                from the month's Doomsday.
+                ✓ Correct! You can move
+                ${solution.step10.fullWeeks}
+                full week(s).
             `;
-        }
+
+
+        case 11:
+
+            return `
+                ✓ Correct!
+                ${months[currentDate.month]}
+                ${currentDate.day}
+                is a
+                ${solution.step10.finalWeekday}.
+            `;
     }
 }
 
 
 // ========================================
-// DISABLE ANSWERS
+// DISABLE ANSWER BUTTONS
 // ========================================
 
 function disableAnswerButtons() {
@@ -1747,85 +1860,54 @@ continueButton.addEventListener(
     "click",
     function() {
 
-        // Step 10 has three parts.
+        // Step 10 Part 1 → Part 2
         if (currentStep === 10) {
-
-            if (
-                !document
-                    .getElementById(
-                        "step10-part2"
-                    )
-            ) {
-
-                currentStep = 10;
-
-                showStep10Part2();
-
-                return;
-            }
-        }
-
-        // We need to distinguish the three
-        // Step 10 screens with a state variable.
-    }
-);
-
-
-// ========================================
-// STEP 10 SUB-STATE
-// ========================================
-
-let step10Part = 0;
-
-
-function advanceTutorial() {
-
-    if (currentStep === 10) {
-
-        if (step10Part === 0) {
-
-            step10Part = 1;
-
-            showStep10Part2();
-
-            return;
-        }
-
-        if (step10Part === 1) {
-
-            step10Part = 2;
-
-            showStep10Part3();
-
-            return;
-        }
-
-        if (step10Part === 2) {
 
             currentStep = 11;
 
-            step10Part = 0;
+            answerArea.innerHTML = "";
+
+            feedback.textContent = "";
+
+            feedback.className = "";
+
+            continueButton.classList.add(
+                "hidden"
+            );
 
             showCurrentStep();
 
             return;
         }
+
+        // Step 10 Part 2 → completion
+        if (currentStep === 11) {
+
+            currentStep = 12;
+
+            answerArea.innerHTML = "";
+
+            feedback.textContent = "";
+
+            feedback.className = "";
+
+            continueButton.classList.add(
+                "hidden"
+            );
+
+            showCurrentStep();
+
+            return;
+        }
+
+        // Normal progression
+        currentStep++;
+
+        answerArea.innerHTML = "";
+
+        showCurrentStep();
     }
-
-    currentStep++;
-
-    showCurrentStep();
-}
-
-
-// Replace the initial Continue listener
-// with the actual progression function.
-
-continueButton.onclick =
-    function() {
-
-        advanceTutorial();
-    };
+);
 
 
 // ========================================
@@ -1842,12 +1924,14 @@ function showCompletion() {
 
     question.innerHTML =
         `The day of the week for
-         <strong>
-         ${months[currentDate.month]}
-         ${currentDate.day},
-         ${currentDate.year}
-         </strong>
-         is:`;
+
+        <strong>
+        ${months[currentDate.month]}
+        ${currentDate.day},
+        ${currentDate.year}
+        </strong>
+
+        is:`;
 
     answerArea.innerHTML = `
         <div style="
@@ -1867,7 +1951,6 @@ function showCompletion() {
         "hidden"
     );
 
-    // Mark final sidebar item.
     completeSidebarStep(
         10,
         solution.step10.finalWeekdayName
@@ -1910,7 +1993,7 @@ backHomeButton.addEventListener(
 
 
 // ========================================
-// START ON HOME SCREEN
+// INITIAL SCREEN
 // ========================================
 
 homeScreen.classList.remove(
