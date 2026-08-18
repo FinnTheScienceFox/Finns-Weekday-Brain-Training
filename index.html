@@ -3,14 +3,42 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-
-    <title>My Game</title>
-
+    <title>Finn's Weekday Brain Trainer</title>
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
-    <h1>My Game</h1>
-    <canvas id="game" width="800" height="600"></canvas>
+    <main class="game-container">
+        <h1>Finn's Weekday Brain Trainer</h1>
+        <div id="game">
+            <!-- Tutorial header -->
+            <div id="tutorial-header">
+                <div id="step-counter">Step 1 of 10</div>
+                <h2 id="step-title">Let's Begin!</h2>
+            </div>
+            <!-- Date being solved -->
+            <div id="date-display">
+                July 26, 2021
+            </div>
+            <!-- Tutorial explanation -->
+            <div id="question">
+                Loading...
+            </div>
+            <!-- Where the current question/input goes -->
+            <div id="answer-area">
+            </div>
+            <!-- Feedback -->
+            <div id="feedback">
+            </div>
+            <!-- Continue button -->
+            <button id="continue-button" class="hidden">
+                Continue
+            </button>
+            <!-- New game button -->
+            <button id="new-date-button">
+                New Date
+            </button>
+        </div>
+    </main>
     <script src="game.js"></script>
 </body>
 </html>
