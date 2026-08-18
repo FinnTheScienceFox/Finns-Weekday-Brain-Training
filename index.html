@@ -1,136 +1,234 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
+
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-    <title>Finn's Weekday Brain Training!</title>
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0"
+    >
 
-    <link rel="stylesheet" href="style.css">
+    <title>
+        Finn's Weekday Brain Training!
+    </title>
+
+    <link
+        rel="stylesheet"
+        href="style.css"
+    >
+
 </head>
+
 
 <body>
 
     <main class="game-container">
 
-        <!-- ================================ -->
+
+        <!-- ================================= -->
         <!-- HOME MENU -->
-        <!-- ================================ -->
+        <!-- ================================= -->
 
         <section id="home-screen">
 
-            <h1>Finn's Weekday Brain Training!</h1>
+            <h1>
+                Finn's Weekday Brain Training!
+            </h1>
 
             <p class="subtitle">
                 Train your brain to calculate the day of the week.
             </p>
 
+
             <div class="mode-menu">
 
-                <button class="mode-button" data-mode="endless">
+                <button
+                    class="mode-button"
+                    data-mode="endless"
+                >
                     Endless
                 </button>
 
-                <button class="mode-button" data-mode="quiz">
+
+                <button
+                    class="mode-button"
+                    data-mode="quiz"
+                >
                     Quiz
                 </button>
 
-                <button class="mode-button" data-mode="guided">
+
+                <button
+                    class="mode-button"
+                    data-mode="guided"
+                >
                     Guided
                 </button>
 
-                <button class="mode-button" data-mode="flashcards">
+
+                <button
+                    class="mode-button"
+                    data-mode="flashcards"
+                >
                     Flashcards
                 </button>
 
-                <button class="mode-button" data-mode="tutorial">
+
+                <button
+                    class="mode-button"
+                    data-mode="tutorial"
+                >
                     Tutorial
                 </button>
 
             </div>
+
 
             <div id="home-message"></div>
 
         </section>
 
 
-        <!-- ================================ -->
-        <!-- TUTORIAL -->
-        <!-- ================================ -->
 
-        <section id="tutorial-screen" class="hidden">
+        <!-- ================================= -->
+        <!-- GAME / TUTORIAL SCREEN -->
+        <!-- ================================= -->
+
+        <section
+            id="tutorial-screen"
+            class="hidden"
+        >
 
             <div class="tutorial-layout">
 
+
+                <!-- ================================= -->
                 <!-- SIDEBAR -->
+                <!-- ================================= -->
 
                 <aside id="progress-sidebar">
 
-                    <h2>Your Progress</h2>
+                    <h2>
+                        Your Progress
+                    </h2>
+
 
                     <div id="sidebar-date">
                         Date
                     </div>
 
+
                     <div id="sidebar-steps">
 
-                        <div class="sidebar-step" id="sidebar-step-1">
+
+                        <div
+                            class="sidebar-step"
+                            id="sidebar-step-1"
+                        >
                             <strong>1.</strong>
                             Groups of 12
+
                             <span class="sidebar-result"></span>
                         </div>
 
-                        <div class="sidebar-step" id="sidebar-step-2">
+
+                        <div
+                            class="sidebar-step"
+                            id="sidebar-step-2"
+                        >
                             <strong>2.</strong>
-                            Remainder
+                            What's Left Over?
+
                             <span class="sidebar-result"></span>
                         </div>
 
-                        <div class="sidebar-step" id="sidebar-step-3">
+
+                        <div
+                            class="sidebar-step"
+                            id="sidebar-step-3"
+                        >
                             <strong>3.</strong>
                             Groups of 4
+
                             <span class="sidebar-result"></span>
                         </div>
 
-                        <div class="sidebar-step" id="sidebar-step-4">
+
+                        <div
+                            class="sidebar-step"
+                            id="sidebar-step-4"
+                        >
                             <strong>4.</strong>
                             Century Anchor
+
                             <span class="sidebar-result"></span>
                         </div>
 
-                        <div class="sidebar-step" id="sidebar-step-5">
+
+                        <div
+                            class="sidebar-step"
+                            id="sidebar-step-5"
+                        >
                             <strong>5.</strong>
                             Add Them Up
+
                             <span class="sidebar-result"></span>
                         </div>
 
-                        <div class="sidebar-step" id="sidebar-step-6">
+
+                        <div
+                            class="sidebar-step"
+                            id="sidebar-step-6"
+                        >
                             <strong>6.</strong>
                             Reduce by 7
+
                             <span class="sidebar-result"></span>
                         </div>
 
-                        <div class="sidebar-step" id="sidebar-step-7">
+
+                        <div
+                            class="sidebar-step"
+                            id="sidebar-step-7"
+                        >
                             <strong>7.</strong>
                             Year's Doomsday
+
                             <span class="sidebar-result"></span>
                         </div>
 
-                        <div class="sidebar-step" id="sidebar-step-8">
+
+                        <div
+                            class="sidebar-step"
+                            id="sidebar-step-8"
+                        >
                             <strong>8.</strong>
-                            Month's Doomsday
-                            <span class="sidebar-result"></span>
-                        </div>
-
-                        <div class="sidebar-step" id="sidebar-step-9">
-                            <strong>9.</strong>
                             Leap Year?
+
                             <span class="sidebar-result"></span>
                         </div>
 
-                        <div class="sidebar-step" id="sidebar-step-10">
+
+                        <div
+                            class="sidebar-step"
+                            id="sidebar-step-9"
+                        >
+                            <strong>9.</strong>
+                            Month's Doomsday
+
+                            <span class="sidebar-result"></span>
+                        </div>
+
+
+                        <div
+                            class="sidebar-step"
+                            id="sidebar-step-10"
+                        >
                             <strong>10.</strong>
                             Final Date
+
                             <span class="sidebar-result"></span>
                         </div>
 
@@ -139,15 +237,20 @@
                 </aside>
 
 
-                <!-- MAIN TUTORIAL -->
+
+                <!-- ================================= -->
+                <!-- MAIN GAME AREA -->
+                <!-- ================================= -->
 
                 <div id="tutorial-main">
+
 
                     <div id="tutorial-header">
 
                         <div id="step-counter">
                             Step 1 of 10
                         </div>
+
 
                         <h2 id="step-title">
                             Let's Begin!
@@ -156,9 +259,11 @@
                     </div>
 
 
+
                     <div id="date-display">
                         July 26, 2021
                     </div>
+
 
 
                     <div id="question">
@@ -166,15 +271,19 @@
                     </div>
 
 
-                    <div id="answer-area">
-                    </div>
+
+                    <div id="answer-area"></div>
 
 
-                    <div id="feedback">
-                    </div>
+
+                    <div id="feedback"></div>
 
 
-                    <button id="continue-button" class="hidden">
+
+                    <button
+                        id="continue-button"
+                        class="hidden"
+                    >
                         Continue
                     </button>
 
@@ -196,7 +305,9 @@
 
     </main>
 
+
     <script src="game.js"></script>
 
 </body>
+
 </html>
