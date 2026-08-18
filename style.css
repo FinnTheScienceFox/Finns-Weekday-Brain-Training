@@ -1,3 +1,7 @@
+/* ========================================
+   GENERAL
+======================================== */
+
 body {
     margin: 0;
     background-color: #222;
@@ -6,22 +10,164 @@ body {
 }
 
 .game-container {
-    width: 90%;
-    max-width: 800px;
+    width: 92%;
+    max-width: 1100px;
     margin: 40px auto;
+}
+
+
+/* ========================================
+   HOME SCREEN
+======================================== */
+
+#home-screen {
     text-align: center;
 }
 
 h1 {
-    font-size: 42px;
-    margin-bottom: 30px;
+    font-size: 52px;
+    margin-bottom: 10px;
 }
 
-#game {
+.subtitle {
+    color: #bbb;
+    font-size: 20px;
+    margin-bottom: 40px;
+}
+
+.mode-menu {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(200px, 300px));
+    justify-content: center;
+    gap: 15px;
+}
+
+.mode-button {
+    background-color: #3478db;
+    color: white;
+    border: none;
+    border-radius: 10px;
+    padding: 20px;
+    font-size: 22px;
+    cursor: pointer;
+    transition: background-color 0.15s, transform 0.15s;
+}
+
+.mode-button:hover {
+    background-color: #4b8de8;
+    transform: translateY(-2px);
+}
+
+.mode-button:last-child {
+    grid-column: 1 / -1;
+    justify-self: center;
+    width: 300px;
+}
+
+#home-message {
+    margin-top: 30px;
+    min-height: 30px;
+    color: #ffcc66;
+    font-size: 18px;
+}
+
+
+/* ========================================
+   UTILITY
+======================================== */
+
+.hidden {
+    display: none !important;
+}
+
+
+/* ========================================
+   TUTORIAL LAYOUT
+======================================== */
+
+.tutorial-layout {
+    display: grid;
+    grid-template-columns: 270px 1fr;
+    gap: 20px;
+    align-items: start;
+}
+
+
+/* ========================================
+   SIDEBAR
+======================================== */
+
+#progress-sidebar {
+    background-color: #333;
+    border: 2px solid #555;
+    border-radius: 12px;
+    padding: 20px;
+    position: sticky;
+    top: 20px;
+}
+
+#progress-sidebar h2 {
+    margin-top: 0;
+    text-align: center;
+}
+
+#sidebar-date {
+    background-color: #444;
+    border-radius: 7px;
+    padding: 10px;
+    text-align: center;
+    font-weight: bold;
+    margin-bottom: 15px;
+}
+
+.sidebar-step {
+    padding: 10px;
+    margin-bottom: 6px;
+    border-radius: 7px;
+    color: #888;
+    background-color: #292929;
+    transition: background-color 0.2s;
+}
+
+.sidebar-step.active {
+    color: white;
+    background-color: #444;
+    border-left: 4px solid #3478db;
+}
+
+.sidebar-step.completed {
+    color: #ddd;
+    background-color: #263d2d;
+}
+
+.sidebar-step.completed .sidebar-result {
+    color: #55dd77;
+    font-weight: bold;
+}
+
+.sidebar-step.revealed {
+    color: white;
+    background-color: #4a4030;
+}
+
+.sidebar-result {
+    display: block;
+    margin-top: 4px;
+    margin-left: 20px;
+    color: #aaa;
+}
+
+
+/* ========================================
+   MAIN TUTORIAL
+======================================== */
+
+#tutorial-main {
     background-color: #333;
     border: 3px solid white;
     border-radius: 12px;
     padding: 30px;
+    text-align: center;
 }
 
 #tutorial-header {
@@ -51,7 +197,7 @@ h1 {
 #question {
     font-size: 22px;
     line-height: 1.5;
-    min-height: 70px;
+    min-height: 90px;
     margin: 20px 0;
 }
 
@@ -83,7 +229,7 @@ h1 {
 }
 
 #feedback {
-    min-height: 50px;
+    min-height: 55px;
     font-size: 20px;
     margin: 20px 0;
 }
@@ -96,9 +242,14 @@ h1 {
     color: #ff6666;
 }
 
+
+/* ========================================
+   TUTORIAL BUTTONS
+======================================== */
+
 #continue-button,
-#new-date-button {
-    background-color: #3478db;
+#new-date-button,
+#back-home-button {
     color: white;
     border: none;
     border-radius: 8px;
@@ -108,11 +259,82 @@ h1 {
     margin: 5px;
 }
 
-#continue-button:hover,
-#new-date-button:hover {
+#continue-button {
+    background-color: #3478db;
+}
+
+#continue-button:hover {
     background-color: #4b8de8;
 }
 
-.hidden {
-    display: none;
+#new-date-button {
+    background-color: #555;
+}
+
+#new-date-button:hover {
+    background-color: #666;
+}
+
+#back-home-button {
+    background-color: #773737;
+}
+
+#back-home-button:hover {
+    background-color: #944646;
+}
+
+
+/* ========================================
+   STEP 10 COUNTING
+======================================== */
+
+.counting-display {
+    width: 100%;
+    margin: 10px 0;
+}
+
+.counting-row {
+    background-color: #444;
+    padding: 10px;
+    margin: 5px auto;
+    border-radius: 6px;
+    max-width: 500px;
+}
+
+.counting-row.highlight {
+    border: 2px solid #55dd77;
+}
+
+
+/* ========================================
+   MOBILE
+======================================== */
+
+@media (max-width: 750px) {
+
+    .tutorial-layout {
+        grid-template-columns: 1fr;
+    }
+
+    #progress-sidebar {
+        position: static;
+        order: 2;
+    }
+
+    #tutorial-main {
+        order: 1;
+    }
+
+    .mode-menu {
+        grid-template-columns: 1fr;
+    }
+
+    .mode-button:last-child {
+        grid-column: auto;
+        width: auto;
+    }
+
+    h1 {
+        font-size: 40px;
+    }
 }
