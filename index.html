@@ -3,42 +3,200 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Finn's Weekday Brain Trainer</title>
+
+    <title>Doomsday Trainer</title>
+
     <link rel="stylesheet" href="style.css">
 </head>
+
 <body>
+
     <main class="game-container">
-        <h1>Finn's Weekday Brain Trainer</h1>
-        <div id="game">
-            <!-- Tutorial header -->
-            <div id="tutorial-header">
-                <div id="step-counter">Step 1 of 10</div>
-                <h2 id="step-title">Let's Begin!</h2>
+
+        <!-- ================================ -->
+        <!-- HOME MENU -->
+        <!-- ================================ -->
+
+        <section id="home-screen">
+
+            <h1>Doomsday Trainer</h1>
+
+            <p class="subtitle">
+                Train your brain to calculate the day of the week.
+            </p>
+
+            <div class="mode-menu">
+
+                <button class="mode-button" data-mode="endless">
+                    Endless
+                </button>
+
+                <button class="mode-button" data-mode="quiz">
+                    Quiz
+                </button>
+
+                <button class="mode-button" data-mode="guided">
+                    Guided
+                </button>
+
+                <button class="mode-button" data-mode="flashcards">
+                    Flashcards
+                </button>
+
+                <button class="mode-button" data-mode="tutorial">
+                    Tutorial
+                </button>
+
             </div>
-            <!-- Date being solved -->
-            <div id="date-display">
-                July 26, 2021
+
+            <div id="home-message"></div>
+
+        </section>
+
+
+        <!-- ================================ -->
+        <!-- TUTORIAL -->
+        <!-- ================================ -->
+
+        <section id="tutorial-screen" class="hidden">
+
+            <div class="tutorial-layout">
+
+                <!-- SIDEBAR -->
+
+                <aside id="progress-sidebar">
+
+                    <h2>Your Progress</h2>
+
+                    <div id="sidebar-date">
+                        Date
+                    </div>
+
+                    <div id="sidebar-steps">
+
+                        <div class="sidebar-step" id="sidebar-step-1">
+                            <strong>1.</strong>
+                            Groups of 12
+                            <span class="sidebar-result"></span>
+                        </div>
+
+                        <div class="sidebar-step" id="sidebar-step-2">
+                            <strong>2.</strong>
+                            Remainder
+                            <span class="sidebar-result"></span>
+                        </div>
+
+                        <div class="sidebar-step" id="sidebar-step-3">
+                            <strong>3.</strong>
+                            Groups of 4
+                            <span class="sidebar-result"></span>
+                        </div>
+
+                        <div class="sidebar-step" id="sidebar-step-4">
+                            <strong>4.</strong>
+                            Century Anchor
+                            <span class="sidebar-result"></span>
+                        </div>
+
+                        <div class="sidebar-step" id="sidebar-step-5">
+                            <strong>5.</strong>
+                            Add Them Up
+                            <span class="sidebar-result"></span>
+                        </div>
+
+                        <div class="sidebar-step" id="sidebar-step-6">
+                            <strong>6.</strong>
+                            Reduce by 7
+                            <span class="sidebar-result"></span>
+                        </div>
+
+                        <div class="sidebar-step" id="sidebar-step-7">
+                            <strong>7.</strong>
+                            Year's Doomsday
+                            <span class="sidebar-result"></span>
+                        </div>
+
+                        <div class="sidebar-step" id="sidebar-step-8">
+                            <strong>8.</strong>
+                            Month's Doomsday
+                            <span class="sidebar-result"></span>
+                        </div>
+
+                        <div class="sidebar-step" id="sidebar-step-9">
+                            <strong>9.</strong>
+                            Leap Year?
+                            <span class="sidebar-result"></span>
+                        </div>
+
+                        <div class="sidebar-step" id="sidebar-step-10">
+                            <strong>10.</strong>
+                            Final Date
+                            <span class="sidebar-result"></span>
+                        </div>
+
+                    </div>
+
+                </aside>
+
+
+                <!-- MAIN TUTORIAL -->
+
+                <div id="tutorial-main">
+
+                    <div id="tutorial-header">
+
+                        <div id="step-counter">
+                            Step 1 of 10
+                        </div>
+
+                        <h2 id="step-title">
+                            Let's Begin!
+                        </h2>
+
+                    </div>
+
+
+                    <div id="date-display">
+                        July 26, 2021
+                    </div>
+
+
+                    <div id="question">
+                        Loading...
+                    </div>
+
+
+                    <div id="answer-area">
+                    </div>
+
+
+                    <div id="feedback">
+                    </div>
+
+
+                    <button id="continue-button" class="hidden">
+                        Continue
+                    </button>
+
+
+                    <button id="new-date-button">
+                        New Date
+                    </button>
+
+
+                    <button id="back-home-button">
+                        Back to Menu
+                    </button>
+
+                </div>
+
             </div>
-            <!-- Tutorial explanation -->
-            <div id="question">
-                Loading...
-            </div>
-            <!-- Where the current question/input goes -->
-            <div id="answer-area">
-            </div>
-            <!-- Feedback -->
-            <div id="feedback">
-            </div>
-            <!-- Continue button -->
-            <button id="continue-button" class="hidden">
-                Continue
-            </button>
-            <!-- New game button -->
-            <button id="new-date-button">
-                New Date
-            </button>
-        </div>
+
+        </section>
+
     </main>
+
     <script src="game.js"></script>
+
 </body>
 </html>
