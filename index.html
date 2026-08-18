@@ -2,89 +2,54 @@
 <html lang="en">
 
 <head>
-
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-    <meta
-        name="viewport"
-        content="width=device-width, initial-scale=1.0"
-    >
+    <title>Finn's Weekday Brain Training!</title>
 
-    <title>
-        Finn's Weekday Brain Training!
-    </title>
-
-    <link
-        rel="stylesheet"
-        href="style.css"
-    >
-
+    <link rel="stylesheet" href="style.css">
 </head>
-
 
 <body>
 
     <main class="game-container">
 
 
-        <!-- ================================= -->
-        <!-- HOME MENU -->
-        <!-- ================================= -->
+        <!-- ================================================== -->
+        <!-- HOME SCREEN -->
+        <!-- ================================================== -->
 
         <section id="home-screen">
 
-            <h1>
-                Finn's Weekday Brain Training!
-            </h1>
+            <h1>Finn's Weekday Brain Training!</h1>
 
             <p class="subtitle">
                 Train your brain to calculate the day of the week.
             </p>
 
-
             <div class="mode-menu">
 
-                <button
-                    class="mode-button"
-                    data-mode="endless"
-                >
+                <button class="mode-button" data-mode="endless">
                     Endless
                 </button>
 
-
-                <button
-                    class="mode-button"
-                    data-mode="quiz"
-                >
+                <button class="mode-button" data-mode="quiz">
                     Quiz
                 </button>
 
-
-                <button
-                    class="mode-button"
-                    data-mode="guided"
-                >
+                <button class="mode-button" data-mode="guided">
                     Guided
                 </button>
 
-
-                <button
-                    class="mode-button"
-                    data-mode="flashcards"
-                >
+                <button class="mode-button" data-mode="flashcards">
                     Flashcards
                 </button>
 
-
-                <button
-                    class="mode-button"
-                    data-mode="tutorial"
-                >
+                <button class="mode-button" data-mode="tutorial">
                     Tutorial
                 </button>
 
             </div>
-
 
             <div id="home-message"></div>
 
@@ -92,143 +57,86 @@
 
 
 
-        <!-- ================================= -->
-        <!-- GAME / TUTORIAL SCREEN -->
-        <!-- ================================= -->
+        <!-- ================================================== -->
+        <!-- TUTORIAL MODE -->
+        <!-- ================================================== -->
 
-        <section
-            id="tutorial-screen"
-            class="hidden"
-        >
+        <section id="tutorial-screen" class="hidden">
 
             <div class="tutorial-layout">
 
 
-                <!-- ================================= -->
-                <!-- SIDEBAR -->
-                <!-- ================================= -->
+                <!-- ============================== -->
+                <!-- TUTORIAL SIDEBAR -->
+                <!-- ============================== -->
 
                 <aside id="progress-sidebar">
 
-                    <h2>
-                        Your Progress
-                    </h2>
-
+                    <h2>Your Progress</h2>
 
                     <div id="sidebar-date">
                         Date
                     </div>
 
-
                     <div id="sidebar-steps">
 
-
-                        <div
-                            class="sidebar-step"
-                            id="sidebar-step-1"
-                        >
+                        <div class="sidebar-step" id="sidebar-step-1">
                             <strong>1.</strong>
                             Groups of 12
-
                             <span class="sidebar-result"></span>
                         </div>
 
-
-                        <div
-                            class="sidebar-step"
-                            id="sidebar-step-2"
-                        >
+                        <div class="sidebar-step" id="sidebar-step-2">
                             <strong>2.</strong>
-                            What's Left Over?
-
+                            Leftover
                             <span class="sidebar-result"></span>
                         </div>
 
-
-                        <div
-                            class="sidebar-step"
-                            id="sidebar-step-3"
-                        >
+                        <div class="sidebar-step" id="sidebar-step-3">
                             <strong>3.</strong>
                             Groups of 4
-
                             <span class="sidebar-result"></span>
                         </div>
 
-
-                        <div
-                            class="sidebar-step"
-                            id="sidebar-step-4"
-                        >
+                        <div class="sidebar-step" id="sidebar-step-4">
                             <strong>4.</strong>
                             Century Anchor
-
                             <span class="sidebar-result"></span>
                         </div>
 
-
-                        <div
-                            class="sidebar-step"
-                            id="sidebar-step-5"
-                        >
+                        <div class="sidebar-step" id="sidebar-step-5">
                             <strong>5.</strong>
                             Add Them Up
-
                             <span class="sidebar-result"></span>
                         </div>
 
-
-                        <div
-                            class="sidebar-step"
-                            id="sidebar-step-6"
-                        >
+                        <div class="sidebar-step" id="sidebar-step-6">
                             <strong>6.</strong>
                             Reduce by 7
-
                             <span class="sidebar-result"></span>
                         </div>
 
-
-                        <div
-                            class="sidebar-step"
-                            id="sidebar-step-7"
-                        >
+                        <div class="sidebar-step" id="sidebar-step-7">
                             <strong>7.</strong>
                             Year's Doomsday
-
                             <span class="sidebar-result"></span>
                         </div>
 
-
-                        <div
-                            class="sidebar-step"
-                            id="sidebar-step-8"
-                        >
+                        <div class="sidebar-step" id="sidebar-step-8">
                             <strong>8.</strong>
                             Leap Year?
-
                             <span class="sidebar-result"></span>
                         </div>
 
-
-                        <div
-                            class="sidebar-step"
-                            id="sidebar-step-9"
-                        >
+                        <div class="sidebar-step" id="sidebar-step-9">
                             <strong>9.</strong>
                             Month's Doomsday
-
                             <span class="sidebar-result"></span>
                         </div>
 
-
-                        <div
-                            class="sidebar-step"
-                            id="sidebar-step-10"
-                        >
+                        <div class="sidebar-step" id="sidebar-step-10">
                             <strong>10.</strong>
                             Final Date
-
                             <span class="sidebar-result"></span>
                         </div>
 
@@ -238,19 +146,17 @@
 
 
 
-                <!-- ================================= -->
-                <!-- MAIN GAME AREA -->
-                <!-- ================================= -->
+                <!-- ============================== -->
+                <!-- TUTORIAL MAIN -->
+                <!-- ============================== -->
 
                 <div id="tutorial-main">
-
 
                     <div id="tutorial-header">
 
                         <div id="step-counter">
                             Step 1 of 10
                         </div>
-
 
                         <h2 id="step-title">
                             Let's Begin!
@@ -259,11 +165,9 @@
                     </div>
 
 
-
                     <div id="date-display">
                         July 26, 2021
                     </div>
-
 
 
                     <div id="question">
@@ -271,19 +175,15 @@
                     </div>
 
 
-
-                    <div id="answer-area"></div>
-
-
-
-                    <div id="feedback"></div>
+                    <div id="answer-area">
+                    </div>
 
 
+                    <div id="feedback">
+                    </div>
 
-                    <button
-                        id="continue-button"
-                        class="hidden"
-                    >
+
+                    <button id="continue-button" class="hidden">
                         Continue
                     </button>
 
@@ -303,8 +203,325 @@
 
         </section>
 
+
+
+        <!-- ================================================== -->
+        <!-- ENDLESS MODE -->
+        <!-- ================================================== -->
+
+        <section id="endless-screen" class="hidden">
+
+            <div id="endless-main">
+
+                <div class="mode-header">
+
+                    <div class="mode-label">
+                        Endless Mode
+                    </div>
+
+                    <h2>
+                        How well do you know your weekdays?
+                    </h2>
+
+                </div>
+
+
+                <div id="endless-score">
+                    Correct: 0
+                </div>
+
+
+                <div id="endless-streak">
+                    Streak: 0
+                </div>
+
+
+                <div id="endless-date-display">
+                    July 26, 2021
+                </div>
+
+
+                <div id="endless-question">
+                    What day of the week is this date?
+                </div>
+
+
+                <div id="endless-answer-area">
+                </div>
+
+
+                <div id="endless-feedback">
+                </div>
+
+
+                <button id="endless-restart-button">
+                    Restart
+                </button>
+
+
+                <button id="endless-back-home-button">
+                    Back to Home
+                </button>
+
+            </div>
+
+        </section>
+
+
+
+        <!-- ================================================== -->
+        <!-- QUIZ MODE -->
+        <!-- ================================================== -->
+
+        <section id="quiz-screen" class="hidden">
+
+            <div id="quiz-main">
+
+                <div class="mode-header">
+
+                    <div class="mode-label">
+                        Quiz Mode
+                    </div>
+
+                    <h2>
+                        Test your skills!
+                    </h2>
+
+                </div>
+
+
+                <div id="quiz-setup">
+
+                    <p>
+                        How many questions would you like?
+                    </p>
+
+                    <div id="quiz-question-count-area">
+
+                        <button class="quiz-count-button" data-count="5">
+                            5
+                        </button>
+
+                        <button class="quiz-count-button" data-count="10">
+                            10
+                        </button>
+
+                        <button class="quiz-count-button" data-count="20">
+                            20
+                        </button>
+
+                    </div>
+
+                </div>
+
+
+                <div id="quiz-game" class="hidden">
+
+                    <div id="quiz-progress">
+                        Question 1 of 10
+                    </div>
+
+
+                    <div id="quiz-score">
+                        Correct: 0
+                    </div>
+
+
+                    <div id="quiz-date-display">
+                        July 26, 2021
+                    </div>
+
+
+                    <div id="quiz-question">
+                        What day of the week is this date?
+                    </div>
+
+
+                    <div id="quiz-answer-area">
+                    </div>
+
+
+                    <div id="quiz-feedback">
+                    </div>
+
+                </div>
+
+
+                <div id="quiz-results" class="hidden">
+
+                    <h2>
+                        Quiz Complete!
+                    </h2>
+
+                    <div id="quiz-final-score">
+                    </div>
+
+                    <div id="quiz-grade">
+                    </div>
+
+                    <button id="quiz-restart-button">
+                        Restart Quiz
+                    </button>
+
+                </div>
+
+
+                <button id="quiz-back-home-button">
+                    Back to Home
+                </button>
+
+            </div>
+
+        </section>
+
+
+
+        <!-- ================================================== -->
+        <!-- GUIDED MODE -->
+        <!-- ================================================== -->
+
+        <section id="guided-screen" class="hidden">
+
+            <div id="guided-main">
+
+                <div class="mode-header">
+
+                    <div class="mode-label">
+                        Guided Mode
+                    </div>
+
+                    <h2>
+                        Practice with hints
+                    </h2>
+
+                </div>
+
+
+                <div id="guided-hints">
+                    Hints remaining: 3
+                </div>
+
+
+                <div id="guided-date-display">
+                    July 26, 2021
+                </div>
+
+
+                <div id="guided-question">
+                    What day of the week is this date?
+                </div>
+
+
+                <div id="guided-answer-area">
+                </div>
+
+
+                <div id="guided-feedback">
+                </div>
+
+
+                <button id="guided-hint-button">
+                    Hint
+                </button>
+
+
+                <button id="guided-restart-button">
+                    Restart
+                </button>
+
+
+                <button id="guided-back-home-button">
+                    Back to Home
+                </button>
+
+            </div>
+
+        </section>
+
+
+
+        <!-- ================================================== -->
+        <!-- FLASHCARD MODE -->
+        <!-- ================================================== -->
+
+        <section id="flashcards-screen" class="hidden">
+
+            <div id="flashcards-main">
+
+                <div class="mode-header">
+
+                    <div class="mode-label">
+                        Flashcards
+                    </div>
+
+                    <h2>
+                        Memorize the building blocks
+                    </h2>
+
+                </div>
+
+
+                <div id="flashcard-category-area">
+
+                    <button
+                        class="flashcard-category-button"
+                        data-category="weekdays">
+                        Weekday Numbers
+                    </button>
+
+                    <button
+                        class="flashcard-category-button"
+                        data-category="doomsdays">
+                        Doomsday Dates
+                    </button>
+
+                    <button
+                        class="flashcard-category-button"
+                        data-category="centuries">
+                        Century Anchors
+                    </button>
+
+                </div>
+
+
+                <div id="flashcard-area" class="hidden">
+
+                    <div id="flashcard-prompt">
+                        Flashcard
+                    </div>
+
+
+                    <div id="flashcard-answer" class="hidden">
+                    </div>
+
+
+                    <button id="flashcard-show-answer-button">
+                        Show Answer
+                    </button>
+
+
+                    <button id="flashcard-next-button" class="hidden">
+                        Next Card
+                    </button>
+
+                </div>
+
+
+                <button id="flashcards-back-home-button">
+                    Back to Home
+                </button>
+
+            </div>
+
+        </section>
+
     </main>
 
+
+
+    <!-- ================================================== -->
+    <!-- JAVASCRIPT -->
+    <!-- ================================================== -->
 
     <script src="game.js"></script>
 
