@@ -1,25 +1,6 @@
-/* =========================================
+/* =====================================================
    GENERAL
-========================================= */
-
-:root {
-    --black: #000000;
-    --white: #ffffff;
-    --light-gray: #F0F3F0;
-    --border-gray: #E5E5E5;
-    --gray-text: #818181;
-
-    --green: #149373;
-    --green-light: #A6D8CC;
-
-    --red: #FF6666;
-
-    --font:
-        "Helvetica Neue",
-        Helvetica,
-        Arial,
-        sans-serif;
-}
+===================================================== */
 
 * {
     box-sizing: border-box;
@@ -28,19 +9,24 @@
 html,
 body {
     margin: 0;
+    padding: 0;
     min-height: 100%;
-    background: var(--white);
-    color: var(--black);
-    font-family: var(--font);
 }
 
 body {
-    min-height: 100vh;
+    background: #ffffff;
+    color: #000000;
+    font-family:
+        "Avenir Next",
+        "Helvetica Neue",
+        Helvetica,
+        Arial,
+        sans-serif;
 }
 
 button,
 input {
-    font-family: inherit;
+    font: inherit;
 }
 
 button {
@@ -52,96 +38,51 @@ button {
 }
 
 
-/* =========================================
-   TRANSITION
-========================================= */
+/* =====================================================
+   SCREEN TRANSITION
+===================================================== */
 
-#transition-flash {
+#screen-transition {
     position: fixed;
     inset: 0;
-    background: white;
+    background: #ffffff;
     opacity: 0;
     pointer-events: none;
     z-index: 9999;
 }
 
-#transition-flash.fade-in {
-    animation: flash-in 0.18s ease forwards;
-}
 
-#transition-flash.fade-out {
-    animation: flash-out 0.22s ease forwards;
-}
-
-@keyframes flash-in {
-    from {
-        opacity: 0;
-    }
-
-    to {
-        opacity: 1;
-    }
-}
-
-@keyframes flash-out {
-    from {
-        opacity: 1;
-    }
-
-    to {
-        opacity: 0;
-    }
-}
-
-
-/* =========================================
-   APP / SCREENS
-========================================= */
-
-.app {
-    width: 100%;
-    min-height: 100vh;
-}
-
-.screen {
-    width: 100%;
-    min-height: 100vh;
-}
-
-.game-screen {
-    padding: 50px 30px;
-}
-
-
-/* =========================================
+/* =====================================================
    HOME
-========================================= */
+===================================================== */
 
 #home-screen {
-    overflow-y: auto;
+    min-height: 100vh;
+    padding: 60px 20px 100px;
 }
 
 .home-inner {
-    width: min(900px, 92%);
+    width: min(900px, 94%);
     margin: 0 auto;
-    padding: 70px 0 100px;
 }
 
-#home-screen h1 {
-    margin: 0;
-    text-align: center;
-    font-size: clamp(38px, 6vw, 64px);
+h1 {
+    font-size: clamp(36px, 6vw, 64px);
     line-height: 1.05;
-    font-weight: 800;
+    margin: 0 0 15px;
+    font-weight: 700;
     letter-spacing: -2px;
 }
 
 .subtitle {
-    margin: 18px auto 55px;
-    text-align: center;
-    font-size: 21px;
-    color: var(--black);
+    font-size: 22px;
+    margin: 0 0 45px;
 }
+
+
+/* =====================================================
+   MODE BUTTONS
+===================================================== */
 
 .mode-menu {
     display: flex;
@@ -149,650 +90,652 @@ button {
     gap: 18px;
 }
 
-.mode-card {
+.mode-button {
     width: 100%;
     min-height: 180px;
 
     display: grid;
-    grid-template-columns: 42% 58%;
+    grid-template-columns: 40% 60%;
     align-items: center;
 
-    padding: 20px;
+    background: #ffffff;
+    color: #000000;
 
-    background: white;
-    border: 1.5px solid black;
-    border-radius: 14px;
+    border: 1px solid #000000;
+    border-radius: 12px;
 
-    color: black;
+    padding: 18px;
+
     text-align: left;
 
     transition:
-        transform 0.15s ease,
-        box-shadow 0.15s ease;
+        background-color 0.15s ease,
+        transform 0.15s ease;
 }
 
-.mode-card:hover {
+.mode-button:hover {
+    background: #f7f7f7;
     transform: translateY(-2px);
-    box-shadow: 0 5px 0 black;
 }
 
 .mode-art {
-    width: 100%;
     aspect-ratio: 5 / 2;
+    width: 92%;
 
     display: flex;
     align-items: center;
     justify-content: center;
 
-    border: 1px solid #cccccc;
-    background: #fafafa;
+    background: #eeeeee;
+    border-radius: 8px;
 
-    color: #999;
-    font-size: 18px;
+    color: #999999;
+    font-size: 20px;
 }
 
-.mode-card-content {
-    padding: 0 25px;
+.mode-info {
+    padding: 15px 25px;
 }
 
-.mode-card-content h2 {
-    margin: 0 0 8px;
+.mode-title {
     font-size: 30px;
+    font-weight: 700;
+    margin-bottom: 8px;
 }
 
-.mode-card-content p {
-    margin: 0;
-    max-width: 420px;
+.mode-description {
     font-size: 17px;
     line-height: 1.45;
 }
 
 
-/* =========================================
-   GAME LAYOUT
-========================================= */
+/* =====================================================
+   GENERIC SCREEN
+===================================================== */
 
-.game-layout {
-    width: min(1150px, 100%);
-    margin: 0 auto;
-
-    display: grid;
-    grid-template-columns: 280px minmax(0, 760px);
-
-    gap: 28px;
-    align-items: start;
-}
-
-.game-column {
+.screen {
+    min-height: 100vh;
     width: 100%;
 }
 
-.standalone-game {
-    max-width: 760px;
-    margin: 50px auto 0;
+.centered-screen {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    padding: 50px 20px;
 }
 
 
-/* =========================================
-   SIDEBAR
-========================================= */
+/* =====================================================
+   GENERIC GAME PANEL
+===================================================== */
 
-.progress-sidebar {
-    background: white;
-    border: 1px solid var(--border-gray);
-    border-radius: 14px;
-    padding: 20px;
-
-    position: sticky;
-    top: 25px;
+.game-panel {
+    width: min(850px, 94%);
 }
 
-.progress-sidebar h2 {
-    margin: 0 0 16px;
-    text-align: center;
+.game-panel-top {
     font-size: 22px;
-}
-
-.sidebar-date {
-    padding: 12px;
-    margin-bottom: 14px;
-
-    border-radius: 8px;
-    background: var(--light-gray);
-
-    text-align: center;
     font-weight: 700;
+    margin-bottom: 25px;
 }
 
-.sidebar-step {
+#endless-screen .game-panel {
+    margin: auto;
+}
+
+#endless-screen {
     position: relative;
+}
 
-    padding: 11px 12px;
-    margin-bottom: 6px;
 
-    border-radius: 8px;
+/* =====================================================
+   DATE
+===================================================== */
 
-    background: white;
-    color: #999;
+#endless-date,
+#guided-date,
+#quiz-date {
+    font-size: clamp(34px, 6vw, 52px);
+    font-weight: 700;
+    margin-bottom: 30px;
+}
+
+
+/* =====================================================
+   QUESTION BOX
+===================================================== */
+
+.question-box {
+    background: #F0F3F0;
+    border-radius: 14px;
+    padding: 35px;
+}
+
+#endless-question,
+#guided-question,
+#quiz-question,
+#practice-question {
+    font-size: 24px;
+    line-height: 1.45;
+    margin-bottom: 25px;
+}
+
+
+/* =====================================================
+   ANSWERS
+===================================================== */
+
+#endless-answer-area,
+#guided-answer-area,
+#quiz-answer-area,
+#tutorial-answer-area {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 10px;
+}
+
+.answer-button {
+    background: transparent;
+    color: #000000;
+
+    border: 1px solid #000000;
+    border-radius: 999px;
+
+    padding: 12px 22px;
 
     transition:
         background-color 0.15s ease,
         color 0.15s ease;
 }
 
+.answer-button:hover,
+.answer-button.selected {
+    background: #000000;
+    color: #F0F3F0;
+}
+
+
+/* =====================================================
+   PRIMARY BUTTON
+===================================================== */
+
+.primary-button {
+    display: block;
+
+    margin: 25px auto 0;
+
+    background: #000000;
+    color: #ffffff;
+
+    border: none;
+    border-radius: 999px;
+
+    padding: 13px 28px;
+
+    font-weight: 700;
+
+    transition: opacity 0.15s ease;
+}
+
+.primary-button:hover {
+    opacity: 0.75;
+}
+
+
+/* =====================================================
+   FEEDBACK
+===================================================== */
+
+#tutorial-feedback,
+#endless-feedback,
+#guided-feedback,
+#quiz-feedback,
+#practice-feedback {
+    margin-top: 20px;
+
+    font-size: 19px;
+    line-height: 1.5;
+
+    min-height: 28px;
+}
+
+.correct,
+.incorrect {
+    color: #000000;
+}
+
+
+/* =====================================================
+   NAVIGATION BUTTONS
+===================================================== */
+
+.game-navigation {
+    display: flex;
+    justify-content: center;
+    gap: 20px;
+
+    margin-top: 25px;
+}
+
+.text-button {
+    background: transparent;
+    border: none;
+
+    color: #818181;
+
+    padding: 8px;
+
+    transition: color 0.25s ease;
+}
+
+.text-button:hover {
+    color: #FF6666;
+}
+
+
+/* =====================================================
+   ENDLESS
+===================================================== */
+
+.streak-counter {
+    position: absolute;
+
+    top: 25px;
+    right: 35px;
+
+    font-size: 20px;
+    font-weight: 700;
+}
+
+
+/* =====================================================
+   TUTORIAL
+===================================================== */
+
+.tutorial-layout {
+    min-height: 100vh;
+
+    display: grid;
+    grid-template-columns: 280px 1fr;
+    gap: 30px;
+
+    padding: 50px;
+
+    align-items: start;
+}
+
+
+/* =====================================================
+   TUTORIAL SIDEBAR
+===================================================== */
+
+#progress-sidebar {
+    background: #ffffff;
+
+    border: 1px solid #E5E5E5;
+    border-radius: 12px;
+
+    padding: 20px;
+
+    position: sticky;
+    top: 30px;
+}
+
+#progress-sidebar h2 {
+    margin-top: 0;
+}
+
+#sidebar-date {
+    font-weight: 700;
+    padding: 12px 0;
+
+    border-bottom: 1px solid #E5E5E5;
+
+    margin-bottom: 10px;
+}
+
+.sidebar-step {
+    padding: 11px;
+
+    margin-bottom: 5px;
+
+    border-radius: 7px;
+
+    color: #818181;
+}
+
 .sidebar-step.active {
-    background: var(--green);
-    color: white;
+    background: #149373;
+    color: #ffffff;
 }
 
 .sidebar-step.completed {
-    background: var(--green-light);
-    color: black;
-}
-
-.sidebar-step.revealed {
-    background: var(--green-light);
-    color: black;
-}
-
-.sidebar-step.hint-available {
-    cursor: pointer;
-}
-
-.sidebar-step.hint-available:hover {
-    background: var(--green);
-    color: white;
+    background: #A6D8CC;
+    color: #000000;
 }
 
 .sidebar-result {
     display: block;
+
     margin-top: 4px;
     margin-left: 20px;
 
     font-weight: 700;
 }
 
-.sidebar-step.completed .sidebar-result,
-.sidebar-step.revealed .sidebar-result {
-    color: black;
-}
 
-.hint-counter {
-    margin-top: 18px;
-    padding-top: 15px;
+/* =====================================================
+   TUTORIAL MAIN
+===================================================== */
 
-    border-top: 1px solid var(--border-gray);
-
-    text-align: center;
-    color: var(--gray-text);
-}
-
-
-/* =========================================
-   INSTRUCTION BOX
-========================================= */
-
-.instruction-box {
-    padding: 5px 20px 28px;
-    text-align: center;
-}
-
-.step-counter {
-    margin-bottom: 10px;
-
-    color: var(--gray-text);
-    font-size: 16px;
-    font-weight: 600;
-}
-
-.instruction-box h2 {
-    margin: 0 0 22px;
-
-    font-size: 31px;
-    letter-spacing: -0.5px;
-}
-
-.date-display {
-    display: inline-block;
-
-    margin: 0 auto;
-
-    padding: 12px 20px;
-
-    font-size: 26px;
-    font-weight: 700;
-}
-
-
-/* =========================================
-   QUESTION BOX
-========================================= */
-
-.question-box {
-    width: 100%;
-
-    padding: 38px;
-
-    background: var(--light-gray);
-
-    border-radius: 16px;
-
-    text-align: center;
-}
-
-.question {
-    font-size: 23px;
-    line-height: 1.5;
-    font-weight: 600;
-
-    margin-bottom: 30px;
-}
-
-
-/* =========================================
-   ANSWERS
-========================================= */
-
-.answer-area {
-    display: flex;
-    flex-wrap: wrap;
-    justify-content: center;
-    gap: 11px;
-
-    margin: 0 auto 24px;
-}
-
-.answer-button {
-    min-width: 90px;
-
-    padding: 12px 20px;
-
-    background: transparent;
-    color: black;
-
-    border: 1.5px solid black;
-    border-radius: 999px;
-
-    font-size: 17px;
-
-    transition:
-        background-color 0.12s ease,
-        color 0.12s ease;
-}
-
-.answer-button:hover,
-.answer-button.selected {
-    background: black;
-    color: var(--light-gray);
-}
-
-.answer-button:disabled {
-    opacity: 0.65;
-    cursor: default;
-}
-
-.answer-button.correct-answer {
-    background: var(--green);
-    color: white;
-    border-color: var(--green);
-}
-
-.answer-button.wrong-answer {
-    background: black;
-    color: white;
-}
-
-
-/* =========================================
-   SUBMIT
-========================================= */
-
-.submit-button {
-    display: block;
-
-    margin: 5px auto 20px;
-    padding: 13px 35px;
-
-    background: black;
-    color: white;
-
-    border: none;
-    border-radius: 999px;
-
-    font-size: 18px;
-    font-weight: 700;
-
-    transition:
-        transform 0.12s ease,
-        opacity 0.12s ease;
-}
-
-.submit-button:hover {
-    transform: translateY(-1px);
-}
-
-.submit-button:disabled {
-    opacity: 0.5;
-    cursor: default;
-}
-
-
-/* =========================================
-   FEEDBACK
-========================================= */
-
-.feedback {
-    min-height: 30px;
-
-    margin-top: 10px;
-
-    font-size: 18px;
-    line-height: 1.4;
-}
-
-.correct {
-    color: var(--green);
-}
-
-.incorrect {
-    color: black;
-}
-
-
-/* =========================================
-   NAVIGATION
-========================================= */
-
-.game-navigation {
-    display: flex;
-    justify-content: center;
-    flex-wrap: wrap;
-
-    gap: 8px;
-
-    margin-top: 18px;
-}
-
-.text-button {
-    padding: 10px 15px;
-
-    background: transparent;
-    color: var(--gray-text);
-
-    border: none;
-
-    font-size: 16px;
-
-    transition: color 0.2s ease;
-}
-
-.text-button:hover {
-    color: var(--red);
-}
-
-
-/* =========================================
-   ENDLESS
-========================================= */
-
-.endless-wrapper {
-    position: relative;
-
+#tutorial-main {
     width: min(900px, 100%);
     margin: 0 auto;
 }
 
-.endless-streak {
-    position: fixed;
-    top: 28px;
-    right: 35px;
+.tutorial-top {
+    margin-bottom: 25px;
+}
 
+#tutorial-step-counter {
+    color: #818181;
     font-size: 18px;
-    color: black;
+    margin-bottom: 10px;
 }
 
-.endless-streak strong {
-    font-size: 25px;
+#tutorial-date-display {
+    font-size: clamp(34px, 6vw, 52px);
+    font-weight: 700;
 }
 
 
-/* =========================================
-   BLACK BUTTONS
-========================================= */
+/* =====================================================
+   TUTORIAL INFORMATION BOX
+===================================================== */
 
-.black-button {
-    padding: 13px 28px;
+#tutorial-info-box {
+    padding: 25px 0;
+}
 
-    background: black;
-    color: white;
+#tutorial-step-title {
+    font-size: 28px;
+    font-weight: 700;
+    margin-bottom: 15px;
+}
 
-    border: none;
+#tutorial-main-text {
+    font-size: 20px;
+    line-height: 1.6;
+}
+
+.sentence {
+    display: block;
+    margin-bottom: 10px;
+}
+
+
+/* =====================================================
+   TUTORIAL QUESTION BOX
+===================================================== */
+
+#tutorial-question-box {
+    background: #F0F3F0;
+
+    border-radius: 14px;
+
+    padding: 35px;
+
+    min-height: 180px;
+}
+
+#tutorial-question {
+    font-size: 23px;
+    line-height: 1.5;
+    margin-bottom: 25px;
+}
+
+
+/* =====================================================
+   GUIDED
+===================================================== */
+
+.guided-layout {
+    min-height: 100vh;
+
+    display: grid;
+    grid-template-columns: 240px 1fr;
+
+    gap: 35px;
+
+    padding: 50px;
+}
+
+#guided-sidebar {
+    border: 1px solid #E5E5E5;
+    border-radius: 12px;
+
+    padding: 20px;
+
+    background: #ffffff;
+
+    height: fit-content;
+}
+
+#guided-sidebar h2 {
+    margin-top: 0;
+}
+
+#guided-hint-count {
+    margin-bottom: 15px;
+    color: #818181;
+}
+
+.hint-button {
+    display: block;
+    width: 100%;
+
+    background: #ffffff;
+    border: 1px solid #000000;
+
+    border-radius: 7px;
+
+    padding: 10px;
+
+    margin-bottom: 7px;
+
+    text-align: left;
+}
+
+.hint-button:hover {
+    background: #F0F3F0;
+}
+
+.guided-panel {
+    margin: auto;
+}
+
+
+/* =====================================================
+   PRACTICE
+===================================================== */
+
+#practice-category-area {
+    background: #F0F3F0;
+    padding: 35px;
+    border-radius: 14px;
+}
+
+.category-button {
+    background: #ffffff;
+
+    border: 1px solid #000000;
     border-radius: 999px;
 
-    font-size: 17px;
-    font-weight: 700;
+    padding: 12px 20px;
 
-    cursor: pointer;
+    margin: 5px;
 }
 
-.black-button:hover {
-    opacity: 0.8;
+.category-button:hover {
+    background: #000000;
+    color: #F0F3F0;
 }
 
-
-/* =========================================
-   QUIZ
-========================================= */
-
-#quiz-setup {
-    max-width: 550px;
-    margin: 0 auto;
-}
-
-#quiz-setup p {
-    font-size: 19px;
-}
-
-.slider-value {
-    font-size: 36px;
-    margin: 20px;
-}
-
-#quiz-slider {
+#practice-input {
     width: 100%;
-    accent-color: black;
+
+    padding: 14px;
+
+    border: 1px solid #000000;
+    border-radius: 8px;
+
+    background: #ffffff;
+
+    margin-bottom: 10px;
 }
 
-.slider-labels {
-    display: flex;
-    justify-content: space-between;
 
-    color: var(--gray-text);
-    margin-bottom: 30px;
-}
+/* =====================================================
+   QUIZ SETUP
+===================================================== */
 
-#quiz-question-box {
-    margin-top: 10px;
-}
-
-.quiz-results {
-    padding: 60px 20px;
+.setup-box,
+.results-box {
+    width: min(600px, 94%);
     text-align: center;
 }
 
-#quiz-grade {
-    margin-bottom: 18px;
+.setup-box h2 {
+    font-size: 42px;
+}
 
-    font-size: 110px;
+.slider-value {
+    font-size: 40px;
+    font-weight: 700;
+    margin: 20px;
+}
+
+#quiz-count-slider {
+    width: 100%;
+    accent-color: #000000;
+}
+
+
+/* =====================================================
+   QUIZ
+===================================================== */
+
+.game-panel-top {
+    display: flex;
+    justify-content: space-between;
+}
+
+#quiz-timer {
+    color: #818181;
+}
+
+
+/* =====================================================
+   QUIZ RESULTS
+===================================================== */
+
+#quiz-grade {
+    font-size: 120px;
+    font-weight: 800;
     line-height: 1;
 
-    font-weight: 900;
+    margin-bottom: 20px;
 }
 
 #quiz-score {
-    font-size: 22px;
-    margin-bottom: 16px;
+    font-size: 25px;
+    margin-bottom: 15px;
 }
 
 #quiz-message {
-    font-size: 19px;
+    font-size: 21px;
     font-style: italic;
     margin-bottom: 30px;
 }
 
-.grade-a-plus,
-.grade-a,
-.grade-a-minus {
-    color: #29CC57;
-}
 
-.grade-b-plus,
-.grade-b,
-.grade-b-minus {
-    color: #BAE52D;
-}
-
-.grade-c-plus,
-.grade-c,
-.grade-c-minus {
-    color: #FFC926;
-}
-
-.grade-d-plus,
-.grade-d,
-.grade-d-minus {
-    color: #FF8D23;
-}
-
-.grade-f {
-    color: #FF5D5D;
-}
-
-
-/* =========================================
-   PRACTICE
-========================================= */
-
-#practice-category-menu {
-    display: grid;
-    grid-template-columns: repeat(2, 1fr);
-    gap: 12px;
-
-    max-width: 600px;
-    margin: 30px auto 0;
-}
-
-.practice-category {
-    padding: 17px;
-
-    background: white;
-    color: black;
-
-    border: 1.5px solid black;
-    border-radius: 10px;
-
-    font-size: 17px;
-}
-
-.practice-category:hover {
-    background: black;
-    color: white;
-}
-
-.open-answer-area {
-    max-width: 500px;
-}
-
-.text-answer {
-    width: 100%;
-
-    padding: 14px 16px;
-
-    background: white;
-    color: black;
-
-    border: 1.5px solid black;
-    border-radius: 8px;
-
-    font-size: 19px;
-    text-align: center;
-
-    outline: none;
-}
-
-.text-answer:focus {
-    box-shadow: 0 0 0 2px #cccccc;
-}
-
-
-/* =========================================
+/* =====================================================
    MOBILE
-========================================= */
+===================================================== */
 
-@media (max-width: 850px) {
+@media (max-width: 800px) {
 
-    .game-screen {
-        padding: 30px 15px;
-    }
-
-    .game-layout {
+    .tutorial-layout,
+    .guided-layout {
         grid-template-columns: 1fr;
+        padding: 25px;
     }
 
-    .progress-sidebar {
+    #progress-sidebar,
+    #guided-sidebar {
         position: static;
         order: 2;
     }
 
-    .game-column {
+    #tutorial-main,
+    .guided-panel {
         order: 1;
     }
 
-    .question-box {
-        padding: 25px 18px;
-    }
-
-    .endless-streak {
+    .streak-counter {
         position: static;
         text-align: right;
-        margin-bottom: 10px;
+        margin: 15px 20px;
     }
 
-    #practice-category-menu {
-        grid-template-columns: 1fr;
+    .mode-button {
+        grid-template-columns: 35% 65%;
+        min-height: 150px;
+    }
+
+    .mode-info {
+        padding: 10px 15px;
+    }
+
+    .mode-title {
+        font-size: 24px;
+    }
+
+    .mode-description {
+        font-size: 15px;
     }
 }
 
 
-@media (max-width: 600px) {
+@media (max-width: 550px) {
 
-    .home-inner {
-        padding-top: 40px;
+    #home-screen {
+        padding-top: 35px;
     }
 
-    .mode-card {
+    .mode-button {
         grid-template-columns: 1fr;
-        gap: 15px;
-    }
-
-    .mode-card-content {
-        padding: 0 5px;
     }
 
     .mode-art {
         width: 100%;
+        margin-bottom: 10px;
     }
 
-    .question {
-        font-size: 20px;
+    .mode-info {
+        padding: 5px;
     }
 
-    .answer-button {
-        min-width: 75px;
-        padding: 10px 15px;
+    .question-box,
+    #tutorial-question-box {
+        padding: 22px;
     }
 
-    #quiz-grade {
-        font-size: 85px;
+    .tutorial-layout,
+    .guided-layout {
+        padding: 15px;
     }
 }
