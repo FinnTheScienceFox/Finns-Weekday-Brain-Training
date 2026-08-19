@@ -1,6 +1,6 @@
 /* =========================================================
-   FINN'S WEEKDAY BRAIN TRAINING!
-   ========================================================= */
+   FINN'S WEEKDAY BRAIN TRAINING
+========================================================= */
 
 
 /* =========================================================
@@ -32,18 +32,12 @@ const MONTHS = [
     "December"
 ];
 
-const TUTORIAL_MIN_YEAR = 1800;
-const TUTORIAL_MAX_YEAR = 2200;
-
-const GENERAL_MIN_YEAR = 1600;
-const GENERAL_MAX_YEAR = 2499;
-
 
 /*
     Standard Doomsday dates.
 
-    January and February have two possibilities because of
-    leap years.
+    January and February have two possible dates because
+    leap years use the second date.
 */
 
 const DOOMSDAY_DATES = {
@@ -65,28 +59,46 @@ const DOOMSDAY_DATES = {
 /*
     Century anchors.
 
-    These are the actual weekday numbers used by the
-    Doomsday calculation.
+    These are represented numerically according to the
+    user's system:
 
-    1600 = Saturday (6)
-    1700 = Thursday (4)
-    1800 = Friday (5)
-    1900 = Wednesday (3)
-    2000 = Tuesday (2)
-    2100 = Sunday (0)
-    2200 = Friday (5)
-    2300 = Wednesday (3)
-    2400 = Tuesday (2)
-
-    The pattern repeats every 400 years.
+    1600s = Tuesday (2)
+    1700s = Sunday (0)
+    1800s = Friday (5)
+    1900s = Wednesday (3)
+    2000s = Tuesday (2)
+    2100s = Sunday (0)
+    etc.
 */
 
 const CENTURY_ANCHORS = {
-    0: 2, // 2000
-    1: 0, // 2100
-    2: 5, // 2200
-    3: 3  // 2300
+    0: 2,
+    1: 0,
+    2: 5,
+    3: 3
 };
+
+
+/* =========================================================
+   CORRECT MESSAGES
+========================================================= */
+
+const CORRECT_MESSAGES = [
+    "Correct! 🎉",
+    "Good Job! 🎉",
+    "Spot On! 🎉",
+    "Nice One! 🎉",
+    "Perfect! 🎉",
+    "Awesome! 🎉",
+    "Keep It Up! 🎉"
+];
+
+
+function randomCorrectMessage() {
+    return CORRECT_MESSAGES[
+        Math.floor(Math.random() * CORRECT_MESSAGES.length)
+    ];
+}
 
 
 /* =========================================================
@@ -99,24 +111,23 @@ const state = {
 
     tutorial: {
         date: null,
-        step: 1,
-        results: {},
+        step: 0,
+        answers: {},
         selectedAnswer: null,
-        answered: false,
-        lastDate: null
-    },
-
-    guided: {
-        date: null,
-        selectedAnswer: null,
-        answered: false,
-        hintsLeft: 3,
-        revealedSteps: new Set()
+        answered: false
     },
 
     endless: {
         date: null,
         streak: 0,
+        selectedAnswer: null,
+        answered: false
+    },
+
+    guided: {
+        date: null,
+        hintsRemaining: 3,
+        usedHints: [],
         selectedAnswer: null,
         answered: false
     },
@@ -127,12 +138,15 @@ const state = {
         correct: 0,
         date: null,
         selectedAnswer: null,
-        answered: false
+        answered: false,
+        timer: null,
+        seconds: 0
     },
 
     practice: {
         category: null,
         question: null,
+        answer: null,
         answered: false
     }
 
@@ -147,16 +161,56 @@ function $(id) {
     return document.getElementById(id);
 }
 
-function hide(element) {
-    if (element) {
-        element.classList.add("hidden");
-    }
+
+function showScreen(id) {
+
+    document.querySelectorAll(".screen").forEach(screen => {
+        screen.classList.add("hidden");
+    });
+
+    $("home-screen").classList.add("hidden");
+
+    $(id).classList.remove("hidden");
 }
 
-function show(element) {
-    if (element) {
-        element.classList.remove("hidden");
-    }
+
+function showHome() {
+
+    transitionTo(() => {
+
+        document.querySelectorAll(".screen").forEach(screen => {
+            screen.classList.add("hidden");
+        });
+
+        $("home-screen").classList.remove("hidden");
+
+        resetTutorialCompletely();
+        resetEndless();
+        resetGuided();
+        resetPractice();
+
+    });
+
+}
+
+
+function transitionTo(callback) {
+
+    const transition = $("screen-transition");
+
+    transition.style.transition = "opacity 0.15s ease-in";
+
+    transition.style.opacity = "1";
+
+    setTimeout(() => {
+
+        callback();
+
+        transition.style.transition = "opacity 0.2s ease-out";
+
+        transition.style.opacity = "0";
+
+    }, 150);
 }
 
 
@@ -164,23 +218,21 @@ function show(element) {
    DATE HELPERS
 ========================================================= */
 
-function randomInteger(min, max) {
-    return Math.floor(Math.random() * (max - min + 1)) + min;
-}
-
-
 function randomDate(minYear, maxYear) {
 
-    const year = randomInteger(minYear, maxYear);
-    const month = randomInteger(1, 12);
+    const year =
+        Math.floor(
+            Math.random() * (maxYear - minYear + 1)
+        ) + minYear;
 
-    const maxDay = new Date(
-        year,
-        month,
-        0
-    ).getDate();
+    const month =
+        Math.floor(Math.random() * 12) + 1;
 
-    const day = randomInteger(1, maxDay);
+    const daysInMonth =
+        new Date(year, month, 0).getDate();
+
+    const day =
+        Math.floor(Math.random() * daysInMonth) + 1;
 
     return {
         year,
@@ -191,14 +243,40 @@ function randomDate(minYear, maxYear) {
 
 
 function formatDate(date) {
+
     return `${MONTHS[date.month - 1]} ${date.day}, ${date.year}`;
 }
 
 
-function daysInMonth(year, month) {
-    return new Date(year, month, 0).getDate();
+function formatMonthDay(month, day) {
+
+    return `${MONTHS[month - 1]} ${day}`;
 }
 
+
+function dateToJS(date) {
+
+    return new Date(
+        date.year,
+        date.month - 1,
+        date.day
+    );
+}
+
+
+function daysBetween(a, b) {
+
+    const oneDay = 1000 * 60 * 60 * 24;
+
+    return Math.round(
+        (dateToJS(b) - dateToJS(a)) / oneDay
+    );
+}
+
+
+/* =========================================================
+   DOOMSDAY ALGORITHM
+========================================================= */
 
 function isLeapYear(year) {
 
@@ -214,67 +292,111 @@ function isLeapYear(year) {
 }
 
 
-function getWeekday(date) {
+/*
+    Step 1:
+    How many groups of 12 fit in the final two digits?
+*/
 
-    return new Date(
-        date.year,
-        date.month - 1,
-        date.day
-    ).getDay();
-}
-
-
-/* =========================================================
-   DOOMSDAY ALGORITHM
-========================================================= */
-
-function getCenturyAnchor(year) {
-
-    const century = Math.floor(year / 100);
-
-    const offset = ((century - 20) % 4 + 4) % 4;
-
-    return CENTURY_ANCHORS[offset];
-}
-
-
-function getYearCalculations(year) {
+function step1(year) {
 
     const lastTwo = year % 100;
 
-    const groupsOf12 = Math.floor(lastTwo / 12);
-
-    const leftover = lastTwo % 12;
-
-    const groupsOf4 = Math.floor(leftover / 4);
-
-    const centuryAnchor = getCenturyAnchor(year);
-
-    const sum =
-        groupsOf12 +
-        leftover +
-        groupsOf4 +
-        centuryAnchor;
-
-    const weekdayNumber = sum % 7;
-
-    return {
-        lastTwo,
-        groupsOf12,
-        leftover,
-        groupsOf4,
-        centuryAnchor,
-        sum,
-        weekdayNumber,
-        weekday: WEEKDAYS[weekdayNumber]
-    };
+    return Math.floor(lastTwo / 12);
 }
 
 
-function getDoomsdayWeekday(year) {
-    return getYearCalculations(year).weekdayNumber;
+/*
+    Step 2:
+    Take away 12 until you can't.
+
+    This is simply the leftover after dividing by 12.
+*/
+
+function step2(year) {
+
+    const lastTwo = year % 100;
+
+    return lastTwo % 12;
 }
 
+
+/*
+    Step 3:
+    How many groups of 4 fit into Step 2?
+*/
+
+function step3(year) {
+
+    return Math.floor(step2(year) / 4);
+}
+
+
+/*
+    Step 4:
+    Century anchor number.
+
+    The pattern cycles:
+
+    1800 -> 5
+    1900 -> 3
+    2000 -> 2
+    2100 -> 0
+    2200 -> 5
+    etc.
+
+    We use the actual century number rather than a
+    weekday string.
+*/
+
+function step4(year) {
+
+    const century = Math.floor(year / 100);
+
+    const cycleIndex =
+        ((century % 4) + 4) % 4;
+
+    return CENTURY_ANCHORS[cycleIndex];
+}
+
+
+/*
+    Step 5
+*/
+
+function step5(year) {
+
+    return (
+        step1(year) +
+        step2(year) +
+        step3(year) +
+        step4(year)
+    );
+}
+
+
+/*
+    Step 6
+*/
+
+function step6(year) {
+
+    return step5(year) % 7;
+}
+
+
+/*
+    Step 7
+*/
+
+function step7(year) {
+
+    return step6(year);
+}
+
+
+/*
+    Get the Doomsday date for a particular month.
+*/
 
 function getDoomsdayDate(year, month) {
 
@@ -292,328 +414,60 @@ function getDoomsdayDate(year, month) {
 }
 
 
-/* =========================================================
-   CENTURY ANCHOR HELPERS
-========================================================= */
+/*
+    Find the weekday for a complete date.
+*/
 
-function centuryAnchorDescription(century) {
+function calculateWeekday(date) {
 
-    const year = century * 100;
-    const weekday = getCenturyAnchor(year);
+    const doomsday = step7(date.year);
 
-    return `${century} = ${WEEKDAYS[weekday]} (${weekday})`;
-}
+    const doomDate =
+        getDoomsdayDate(date.year, date.month);
 
+    const difference =
+        date.day - doomDate;
 
-function normalizeNumberInput(value) {
-
-    const number = Number(
-        String(value)
-            .trim()
-            .replace(/[^0-9-]/g, "")
-    );
-
-    return Number.isFinite(number) ? number : null;
+    return (
+        (doomsday + difference) % 7 + 7
+    ) % 7;
 }
 
 
 /* =========================================================
-   TRANSITIONS
-========================================================= */
-
-function transitionTo(callback) {
-
-    const flash = $("transition-flash");
-
-    flash.classList.remove("fade-in", "fade-out");
-
-    /*
-        Force the browser to acknowledge the removal so that
-        the animation can restart every time.
-    */
-
-    void flash.offsetWidth;
-
-    flash.classList.add("fade-in");
-
-    setTimeout(() => {
-
-        callback();
-
-        flash.classList.remove("fade-in");
-        flash.classList.add("fade-out");
-
-    }, 190);
-}
-
-
-/* =========================================================
-   SCREEN MANAGEMENT
-========================================================= */
-
-function hideAllScreens() {
-
-    document
-        .querySelectorAll(".screen")
-        .forEach(screen => screen.classList.add("hidden"));
-}
-
-
-function showScreen(id) {
-
-    hideAllScreens();
-
-    show($(id));
-}
-
-
-function goHome() {
-
-    resetTutorial();
-    resetGuided();
-    resetEndless();
-    resetQuiz();
-    resetPractice();
-
-    state.currentMode = null;
-
-    transitionTo(() => {
-        showScreen("home-screen");
-    });
-}
-
-
-/* =========================================================
-   HOME MENU
-========================================================= */
-
-document
-    .querySelectorAll(".mode-card")
-    .forEach(button => {
-
-        button.addEventListener("click", () => {
-
-            const mode = button.dataset.mode;
-
-            transitionTo(() => {
-
-                state.currentMode = mode;
-
-                if (mode === "tutorial") {
-                    startTutorial();
-                }
-
-                else if (mode === "guided") {
-                    startGuided();
-                }
-
-                else if (mode === "endless") {
-                    startEndless();
-                }
-
-                else if (mode === "quiz") {
-                    startQuizSetup();
-                }
-
-                else if (mode === "practice") {
-                    startPracticeMenu();
-                }
-
-            });
-
-        });
-
-    });
-
-
-/* =========================================================
-   SIDEBAR GENERATION
-========================================================= */
-
-const SIDEBAR_NAMES = [
-    "Groups of 12",
-    "Leftover",
-    "Groups of 4",
-    "Century Anchor",
-    "Add Them Up",
-    "Reduce by 7",
-    "Year's Doomsday",
-    "Leap Year?",
-    "Month's Doomsday",
-    "Final Date"
-];
-
-
-function createSidebar(containerId, mode) {
-
-    const container = $(containerId);
-
-    if (!container) {
-        return;
-    }
-
-    container.innerHTML = "";
-
-    SIDEBAR_NAMES.forEach((name, index) => {
-
-        const stepNumber = index + 1;
-
-        const element = document.createElement("div");
-
-        element.className = "sidebar-step";
-
-        element.dataset.step = stepNumber;
-
-        element.innerHTML = `
-            <strong>${stepNumber}.</strong>
-            ${name}
-            <span class="sidebar-result"></span>
-        `;
-
-        if (mode === "guided") {
-            element.classList.add("hint-available");
-
-            element.addEventListener("click", () => {
-                useGuidedHint(stepNumber);
-            });
-        }
-
-        container.appendChild(element);
-
-    });
-}
-
-
-function resetSidebar(containerId) {
-
-    const container = $(containerId);
-
-    if (!container) {
-        return;
-    }
-
-    container
-        .querySelectorAll(".sidebar-step")
-        .forEach(step => {
-
-            step.classList.remove(
-                "active",
-                "completed",
-                "revealed"
-            );
-
-            const result =
-                step.querySelector(".sidebar-result");
-
-            if (result) {
-                result.textContent = "";
-            }
-
-        });
-}
-
-
-function setSidebarDate(containerId, date) {
-
-    const element = $(containerId);
-
-    if (element) {
-        element.textContent = formatDate(date);
-    }
-}
-
-
-function activateSidebarStep(containerId, stepNumber) {
-
-    const container = $(containerId);
-
-    if (!container) {
-        return;
-    }
-
-    container
-        .querySelectorAll(".sidebar-step")
-        .forEach(step => {
-
-            step.classList.remove("active");
-
-            if (
-                Number(step.dataset.step) === stepNumber
-            ) {
-                step.classList.add("active");
-            }
-
-        });
-}
-
-
-function completeSidebarStep(
-    containerId,
-    stepNumber,
-    result
-) {
-
-    const container = $(containerId);
-
-    if (!container) {
-        return;
-    }
-
-    const step =
-        container.querySelector(
-            `.sidebar-step[data-step="${stepNumber}"]`
-        );
-
-    if (!step) {
-        return;
-    }
-
-    step.classList.add("completed");
-
-    const resultElement =
-        step.querySelector(".sidebar-result");
-
-    if (resultElement) {
-        resultElement.textContent = result;
-    }
-}
-
-
-/* =========================================================
-   ANSWER BUTTON GENERATION
+   ANSWER BUTTONS
 ========================================================= */
 
 function createAnswerButtons(
-    containerId,
+    container,
     answers,
-    callback
+    selectedValueCallback
 ) {
-
-    const container = $(containerId);
 
     container.innerHTML = "";
 
     answers.forEach(answer => {
 
-        const button = document.createElement("button");
+        const button =
+            document.createElement("button");
 
         button.className = "answer-button";
 
-        button.dataset.value = answer.value;
-
         button.textContent = answer.label;
+
+        button.dataset.value = answer.value;
 
         button.addEventListener("click", () => {
 
             container
                 .querySelectorAll(".answer-button")
-                .forEach(other => {
-                    other.classList.remove("selected");
+                .forEach(btn => {
+                    btn.classList.remove("selected");
                 });
 
             button.classList.add("selected");
 
-            callback(answer.value);
+            selectedValueCallback(answer.value);
 
         });
 
@@ -623,73 +477,189 @@ function createAnswerButtons(
 }
 
 
-/* =========================================================
-   TUTORIAL
-========================================================= */
+function numericAnswers(min, max, plusPositive = false) {
 
-function resetTutorial() {
+    const answers = [];
 
-    state.tutorial = {
-        date: null,
-        step: 1,
-        results: {},
-        selectedAnswer: null,
-        answered: false,
-        lastDate: null
-    };
+    for (let i = min; i <= max; i++) {
 
-    const area = $("tutorial-answer-area");
+        let label = String(i);
 
-    if (area) {
-        show(area);
-        area.innerHTML = "";
+        if (plusPositive && i > 0) {
+            label = "+" + i;
+        }
+
+        answers.push({
+            value: i,
+            label
+        });
     }
 
-    show($("tutorial-submit"));
+    return answers;
+}
 
-    $("tutorial-feedback").innerHTML = "";
 
-    resetSidebar("tutorial-sidebar-steps");
+function weekdayAnswers() {
+
+    return WEEKDAYS.map((day, index) => ({
+        value: index,
+        label: day
+    }));
+
+}
+
+
+/* =========================================================
+   SENTENCE FORMATTING
+========================================================= */
+
+function setSentences(element, text) {
+
+    element.innerHTML = "";
+
+    const sentences =
+        text
+            .match(/[^.!?]+[.!?]+/g) || [text];
+
+    sentences.forEach(sentence => {
+
+        const div =
+            document.createElement("div");
+
+        div.className = "sentence";
+
+        div.textContent = sentence.trim();
+
+        element.appendChild(div);
+
+    });
+}
+
+
+/*
+    Question text always goes in the question box.
+
+    Explanatory sentences always go in the main box.
+*/
+
+function setTutorialContent(info, question) {
+
+    setSentences(
+        $("tutorial-main-text"),
+        info
+    );
+
+    $("tutorial-question").textContent =
+        question;
+}
+
+
+/* =========================================================
+   SIDEBAR
+========================================================= */
+
+function resetTutorialSidebar() {
+
+    for (let i = 1; i <= 10; i++) {
+
+        const item =
+            $(`sidebar-step-${i}`);
+
+        item.classList.remove(
+            "active",
+            "completed"
+        );
+
+        item.querySelector(
+            ".sidebar-result"
+        ).textContent = "";
+
+    }
+
+}
+
+
+function updateTutorialSidebar() {
+
+    for (let i = 1; i <= 10; i++) {
+
+        const item =
+            $(`sidebar-step-${i}`);
+
+        item.classList.remove(
+            "active",
+            "completed"
+        );
+
+        const result =
+            item.querySelector(
+                ".sidebar-result"
+            );
+
+        result.textContent = "";
+
+        if (state.tutorial.answers[i] !== undefined) {
+
+            item.classList.add("completed");
+
+            result.textContent =
+                state.tutorial.answers[i];
+
+        }
+
+        if (state.tutorial.step === i) {
+            item.classList.add("active");
+        }
+
+    }
+
+}
+
+
+/* =========================================================
+   TUTORIAL RESET
+========================================================= */
+
+function resetTutorialCompletely() {
+
+    state.tutorial.date = null;
+    state.tutorial.step = 0;
+    state.tutorial.answers = {};
+    state.tutorial.selectedAnswer = null;
+    state.tutorial.answered = false;
+
+    resetTutorialSidebar();
+
 }
 
 
 function startTutorial() {
 
-    resetTutorial();
+    resetTutorialCompletely();
 
     state.currentMode = "tutorial";
 
-    createSidebar(
-        "tutorial-sidebar-steps",
-        "tutorial"
-    );
-
     state.tutorial.date =
-        randomDate(
-            TUTORIAL_MIN_YEAR,
-            TUTORIAL_MAX_YEAR
-        );
+        randomDate(1800, 2200);
 
-    state.tutorial.lastDate =
-        state.tutorial.date;
+    $("sidebar-date").textContent =
+        formatDate(state.tutorial.date);
 
-    setSidebarDate(
-        "tutorial-sidebar-date",
-        state.tutorial.date
-    );
+    $("tutorial-date-display").textContent =
+        formatDate(state.tutorial.date);
 
     showScreen("tutorial-screen");
 
     renderTutorialStep();
+
 }
 
 
+/* =========================================================
+   TUTORIAL STEP RENDERING
+========================================================= */
+
 function renderTutorialStep() {
-
-    const date = state.tutorial.date;
-
-    const calculations =
-        getYearCalculations(date.year);
 
     const step =
         state.tutorial.step;
@@ -697,405 +667,409 @@ function renderTutorialStep() {
     state.tutorial.selectedAnswer = null;
     state.tutorial.answered = false;
 
-    $("tutorial-step-counter").textContent =
-        `Step ${step} of 10`;
-
-    $("tutorial-date-display").textContent =
-        formatDate(date);
+    $("tutorial-submit").classList.add("hidden");
+    $("tutorial-continue").classList.add("hidden");
 
     $("tutorial-feedback").innerHTML = "";
 
-    const answerArea =
-        $("tutorial-answer-area");
+    $("tutorial-answer-area").innerHTML = "";
 
-    answerArea.innerHTML = "";
+    $("tutorial-step-counter").textContent =
+        `Step ${step}`;
 
-    show(answerArea);
+    $("tutorial-date-display").textContent =
+        formatDate(state.tutorial.date);
 
-    show($("tutorial-submit"));
-
-    activateSidebarStep(
-        "tutorial-sidebar-steps",
-        step
-    );
+    updateTutorialSidebar();
 
 
-    /* ---------------------------------------------
+    /* -----------------------------------------
+       STEP 0
+    ----------------------------------------- */
+
+    if (step === 0) {
+
+        $("tutorial-step-title").textContent =
+            "Let's Begin!";
+
+        const dateText =
+            formatDate(state.tutorial.date);
+
+        setSentences(
+            $("tutorial-main-text"),
+            `Hello! I'm Finn, the little guy in the corner cheering you on, and I'm happy you decided to check out my game. For this tutorial, we will be finding the weekday of ${dateText}. Guided questions will help teach the simple step-by-step process, with this date as an example. Press "Continue" if you're ready!`
+        );
+
+        $("tutorial-question").textContent = "";
+
+        $("tutorial-continue")
+            .classList.remove("hidden");
+
+        $("tutorial-continue").onclick =
+            () => {
+
+                state.tutorial.step = 1;
+
+                renderTutorialStep();
+
+            };
+
+        return;
+    }
+
+
+    /* -----------------------------------------
        STEP 1
-    --------------------------------------------- */
+    ----------------------------------------- */
 
     if (step === 1) {
 
+        const lastTwo =
+            state.tutorial.date.year % 100;
+
         $("tutorial-step-title").textContent =
-            "Groups of 12";
+            "Step 1";
 
-        $("tutorial-question").innerHTML =
-            `The last two digits of the year are <strong>${calculations.lastTwo}</strong>. How many groups of 12 can we make out of ${calculations.lastTwo}? (Remember this answer!)`;
-
-        createNumberAnswers(
-            answerArea,
-            calculations.groupsOf12,
-            -1,
-            15,
-            value => {
-                state.tutorial.selectedAnswer = value;
-            }
+        setTutorialContent(
+            `The last two digits of the year are ${String(lastTwo).padStart(2, "0")}. How many groups of 12 can we make out of ${lastTwo}? (Remember this answer!)`,
+            `The last two digits of the year are ${String(lastTwo).padStart(2, "0")}. How many groups of 12 can we make out of ${lastTwo}?`
         );
 
+        renderNumericTutorialAnswers(
+            0,
+            8,
+            1
+        );
+
+        return;
     }
 
 
-    /* ---------------------------------------------
+    /* -----------------------------------------
        STEP 2
-    --------------------------------------------- */
+    ----------------------------------------- */
 
-    else if (step === 2) {
+    if (step === 2) {
+
+        const lastTwo =
+            state.tutorial.date.year % 100;
 
         $("tutorial-step-title").textContent =
-            "Find What's Left Over";
+            "Step 2";
 
-        $("tutorial-question").innerHTML =
-            `For the last two digits, <strong>${calculations.lastTwo}</strong>, take 12 away until you can't anymore. What's left over? (Remember this answer!)`;
-
-        createNumberAnswers(
-            answerArea,
-            calculations.leftover,
-            0,
-            11,
-            value => {
-                state.tutorial.selectedAnswer = value;
-            }
+        setTutorialContent(
+            `For the last two digits, ${lastTwo}, take 12 away until you can't anymore. What's left over? (Remember this answer!)`,
+            `For the last two digits, ${lastTwo}, take 12 away until you can't anymore. What's left over?`
         );
 
+        renderNumericTutorialAnswers(
+            0,
+            3,
+            2
+        );
+
+        return;
     }
 
 
-    /* ---------------------------------------------
+    /* -----------------------------------------
        STEP 3
-    --------------------------------------------- */
+    ----------------------------------------- */
 
-    else if (step === 3) {
+    if (step === 3) {
+
+        const answer2 =
+            state.tutorial.answers[2];
 
         $("tutorial-step-title").textContent =
-            "Groups of 4";
+            "Step 3";
 
-        $("tutorial-question").innerHTML =
-            `Take the answer from the last step, <strong>${calculations.leftover}</strong>. How many groups of 4 can we make out of ${calculations.leftover}? (Remember this answer!)`;
-
-        createNumberAnswers(
-            answerArea,
-            calculations.groupsOf4,
-            0,
-            4,
-            value => {
-                state.tutorial.selectedAnswer = value;
-            }
+        setTutorialContent(
+            `Take the answer from the last step, ${answer2}. How many groups of 4 can we make out of ${answer2}? (Remember this answer!)`,
+            `Take the answer from the last step, ${answer2}. How many groups of 4 can we make out of ${answer2}?`
         );
 
+        renderNumericTutorialAnswers(
+            0,
+            3,
+            3
+        );
+
+        return;
     }
 
 
-    /* ---------------------------------------------
+    /* -----------------------------------------
        STEP 4
-    --------------------------------------------- */
+    ----------------------------------------- */
 
-    else if (step === 4) {
-
-        $("tutorial-step-title").textContent =
-            "Century Anchor";
+    if (step === 4) {
 
         const century =
-            Math.floor(date.year / 100);
+            Math.floor(
+                state.tutorial.date.year / 100
+            );
 
-        $("tutorial-question").innerHTML =
-            `The first two digits of the year are <strong>${century}</strong>. Remember the repeating pattern for <em>century anchors</em>: 18 = Friday (5). 19 = Wednesday (3). 20 = Tuesday (2). 21 = Sunday (0). Using the cycle above, what is the <em>century anchor</em>? (Remember this answer!)`;
+        $("tutorial-step-title").textContent =
+            "Step 4";
 
-        createNumberAnswers(
-            answerArea,
-            calculations.centuryAnchor,
-            0,
-            6,
-            value => {
-                state.tutorial.selectedAnswer = value;
-            }
+        setTutorialContent(
+            `The first two digits of the year are ${century}. Remember the repeating pattern for century anchors: 18 = Friday (5). 19 = Wednesday (3). 20 = Tuesday (2). 21 = Sunday (0). Using the cycle above, what is the century anchor? (Remember this answer!)`,
+            `The first two digits of the year are ${century}. Using the century-anchor cycle, what is the century anchor?`
         );
 
+        renderNumericTutorialAnswers(
+            0,
+            5,
+            4
+        );
+
+        return;
     }
 
 
-    /* ---------------------------------------------
+    /* -----------------------------------------
        STEP 5
-    --------------------------------------------- */
+    ----------------------------------------- */
 
-    else if (step === 5) {
+    if (step === 5) {
 
         $("tutorial-step-title").textContent =
-            "Add Them Up";
+            "Step 5";
+
+        setTutorialContent(
+            `Hopefully you've memorized your answers so far! Add these results together. What's the result?`,
+            `Hopefully you've memorized your answers so far! Add these results together. What's the result?`
+        );
+
+        renderNumericTutorialAnswers(
+            0,
+            20,
+            5
+        );
+
+        return;
+    }
+
+
+    /* -----------------------------------------
+       STEP 6
+    ----------------------------------------- */
+
+    if (step === 6) {
+
+        const sum =
+            state.tutorial.answers[5];
+
+        $("tutorial-step-title").textContent =
+            "Step 6";
+
+        setTutorialContent(
+            `For last question's sum, ${sum}, take 7 away until you can't anymore. What's left over?`,
+            `For last question's sum, ${sum}, take 7 away until you can't anymore. What's left over?`
+        );
+
+        renderNumericTutorialAnswers(
+            0,
+            6,
+            6
+        );
+
+        return;
+    }
+
+
+    /* -----------------------------------------
+       STEP 7
+    ----------------------------------------- */
+
+    if (step === 7) {
+
+        const leftover =
+            state.tutorial.answers[6];
+
+        const year =
+            state.tutorial.date.year;
+
+        $("tutorial-step-title").textContent =
+            "Step 7";
+
+        setTutorialContent(
+            `This leftover number, ${leftover}, is the weekday of ${year}'s Doomsday dates! Remember the mnemonic for numbered weekdays: 0 = "NONEday" (Sunday), 1 = "ONEday" (Monday), 2 = "TWOsday" (Tuesday), 3 = THREE syllables (Wednesday), 4 = "FOURsday" (Thursday), 5 = "FIVEday" (Friday), 6 = "SIXurday" (Saturday).`,
+            `Using the mnemonic above, what weekday does this number represent?`
+        );
+
+        createAnswerButtons(
+            $("tutorial-answer-area"),
+            weekdayAnswers(),
+            value => {
+
+                state.tutorial.selectedAnswer =
+                    Number(value);
+
+                $("tutorial-submit")
+                    .classList.remove("hidden");
+
+            }
+        );
+
+        return;
+    }
+
+
+    /* -----------------------------------------
+       STEP 8
+    ----------------------------------------- */
+
+    if (step === 8) {
+
+        $("tutorial-step-title").textContent =
+            "Step 8";
+
+        const year =
+            state.tutorial.date.year;
+
+        const lastTwo =
+            year % 100;
+
+        setTutorialContent(
+            `Now, we need to check if this year is a leap year. Take the last two digits of the year, ${lastTwo}. Can you make groups of 4 with NO leftovers?`,
+            `Is ${year} a leap year?`
+        );
+
+        createAnswerButtons(
+            $("tutorial-answer-area"),
+            [
+                {
+                    value: true,
+                    label: "Yes"
+                },
+                {
+                    value: false,
+                    label: "No"
+                }
+            ],
+            value => {
+
+                state.tutorial.selectedAnswer =
+                    value === true ||
+                    value === "true";
+
+                $("tutorial-submit")
+                    .classList.remove("hidden");
+
+            }
+        );
+
+        return;
+    }
+
+
+    /* -----------------------------------------
+       STEP 9
+    ----------------------------------------- */
+
+    if (step === 9) {
+
+        const year =
+            state.tutorial.date.year;
+
+        const month =
+            state.tutorial.date.month;
+
+        const leap =
+            isLeapYear(year);
+
+        $("tutorial-step-title").textContent =
+            "Step 9";
+
+        setTutorialContent(
+            `Each month has a Doomsday date: 1/3-4, 2/28-29, 3/14, 4/4, 5/9, 6/6, 7/11, 8/8, 9/5, 10/10, 11/7, and 12/12 for each month. This year ${leap ? "is" : "is not"} a leap year, which means the ${leap ? "second" : "first"} number for January and February are their Doomsday dates.`,
+            `What is the Doomsday date for ${MONTHS[month - 1]}?`
+        );
+
+        const options = [];
 
         /*
-            IMPORTANT:
-            Steps 1–4 are removed from the sidebar BEFORE
-            the player sees the question.
+            Generate every valid Doomsday date for the year.
+            January and February both get BOTH options.
         */
 
-        for (let i = 1; i <= 4; i++) {
+        for (let m = 1; m <= 12; m++) {
 
-            const stepElement =
-                document.querySelector(
-                    `#tutorial-sidebar-steps .sidebar-step[data-step="${i}"]`
-                );
+            const dates =
+                DOOMSDAY_DATES[m];
 
-            if (stepElement) {
-                stepElement.remove();
-            }
+            dates.forEach(day => {
+
+                options.push({
+                    value: `${m}-${day}`,
+                    label: `${m}/${day}`
+                });
+
+            });
 
         }
 
-        $("tutorial-question").innerHTML =
-            `Hopefully you've memorized your answers so far! Add these results together... What's the result?`;
-
-        createNumberAnswers(
-            answerArea,
-            calculations.sum,
-            0,
-            30,
+        createAnswerButtons(
+            $("tutorial-answer-area"),
+            options,
             value => {
-                state.tutorial.selectedAnswer = value;
+
+                state.tutorial.selectedAnswer =
+                    value;
+
+                $("tutorial-submit")
+                    .classList.remove("hidden");
+
             }
         );
 
+        return;
     }
 
 
-    /* ---------------------------------------------
-       STEP 6
-    --------------------------------------------- */
-
-    else if (step === 6) {
-
-        $("tutorial-step-title").textContent =
-            "Reduce by 7";
-
-        $("tutorial-question").innerHTML =
-            `For last question's sum, <strong>${calculations.sum}</strong>, take 7 away until you can't anymore. What's left over?`;
-
-        createNumberAnswers(
-            answerArea,
-            calculations.weekdayNumber,
-            0,
-            6,
-            value => {
-                state.tutorial.selectedAnswer = value;
-            }
-        );
-
-    }
-
-
-    /* ---------------------------------------------
-       STEP 7
-    --------------------------------------------- */
-
-    else if (step === 7) {
-
-        $("tutorial-step-title").textContent =
-            "The Year's Doomsday";
-
-        $("tutorial-question").innerHTML =
-            `This leftover number, <strong>${calculations.weekdayNumber}</strong>, is the weekday of ${date.year}'s Doomsday dates! Remember the mnemonic for numbered weekdays: 0 = "NONEday" (Sunday), 1 = "ONEday" (Monday), 2 = "TWOsday" (Tuesday), 3 = THREE syllables (Wednesday), 4 = "FOURsday" (Thursday), 5 = "FIVEday" (Friday), 6 = "SIXurday" (Saturday). Using the mnemonic above, what weekday does this number represent?`;
-
-        createWeekdayAnswers(
-            answerArea,
-            calculations.weekdayNumber,
-            value => {
-                state.tutorial.selectedAnswer = value;
-            }
-        );
-
-    }
-
-
-    /* ---------------------------------------------
-       STEP 8
-    --------------------------------------------- */
-
-    else if (step === 8) {
-
-        $("tutorial-step-title").textContent =
-            "Leap Year?";
-
-        const lastTwo =
-            calculations.lastTwo;
-
-        $("tutorial-question").innerHTML =
-            `Now, we need to check if this year is a leap year. Take the last two digits of the year, <strong>${lastTwo}</strong>... Can you make groups of 4 with NO leftovers?`;
-
-        createYesNoAnswers(
-            answerArea,
-            isLeapYear(date.year),
-            value => {
-                state.tutorial.selectedAnswer = value;
-            }
-        );
-
-    }
-
-
-    /* ---------------------------------------------
-       STEP 9
-    --------------------------------------------- */
-
-    else if (step === 9) {
-
-        $("tutorial-step-title").textContent =
-            "Month's Doomsday";
-
-        const leap =
-            isLeapYear(date.year);
-
-        const monthDoomsday =
-            getDoomsdayDate(
-                date.year,
-                date.month
-            );
-
-        const leapText =
-            leap ? "is" : "is not";
-
-        const firstSecond =
-            leap ? "second" : "first";
-
-        $("tutorial-question").innerHTML =
-            `Each month has a Doomsday date: 1/3-4, 2/28-29, 3/14, 4/4, 5/9, 6/6, 7/11, 8/8, 9/5, 10/10, 11/7, and 12/12 for each month. This year <strong>${leapText}</strong> a leap year, which means the <strong>${firstSecond}</strong> number for January and February are their Doomsday dates. What is the Doomsday date for <strong>${MONTHS[date.month - 1]}</strong>?`;
-
-        createAllDoomsdayAnswers(
-            date,
-            monthDoomsday,
-            value => {
-                state.tutorial.selectedAnswer = value;
-            }
-        );
-
-    }
-
-
-    /* ---------------------------------------------
+    /* -----------------------------------------
        STEP 10
-    --------------------------------------------- */
+    ----------------------------------------- */
 
-    else if (step === 10) {
+    if (step === 10) {
 
-        $("tutorial-step-title").textContent =
-            "Find the Final Date";
+        renderStep10Part1();
 
-        renderTutorialStep10Part1();
-
+        return;
     }
 
 }
 
 
-function createNumberAnswers(
-    container,
-    correct,
+/* =========================================================
+   TUTORIAL NUMERIC ANSWERS
+========================================================= */
+
+function renderNumericTutorialAnswers(
     min,
     max,
-    callback
-) {
-
-    let values = [];
-
-    for (let i = min; i <= max; i++) {
-        values.push(i);
-    }
-
-    createAnswerButtons(
-        container.id,
-        values.map(value => ({
-            value,
-            label: String(value)
-        })),
-        callback
-    );
-}
-
-
-function createWeekdayAnswers(
-    container,
-    correct,
-    callback
+    stepNumber
 ) {
 
     createAnswerButtons(
-        container.id,
-        WEEKDAYS.map((day, index) => ({
-            value: index,
-            label: day
-        })),
-        callback
+        $("tutorial-answer-area"),
+        numericAnswers(min, max),
+        value => {
+
+            state.tutorial.selectedAnswer =
+                Number(value);
+
+            $("tutorial-submit")
+                .classList.remove("hidden");
+
+        }
     );
-}
 
+    $("tutorial-submit").onclick =
+        () => submitTutorialAnswer(stepNumber);
 
-function createYesNoAnswers(
-    container,
-    correct,
-    callback
-) {
-
-    createAnswerButtons(
-        container.id,
-        [
-            {
-                value: true,
-                label: "Yes"
-            },
-            {
-                value: false,
-                label: "No"
-            }
-        ],
-        callback
-    );
-}
-
-
-function createAllDoomsdayAnswers(
-    date,
-    correctDay,
-    callback
-) {
-
-    const answers = [];
-
-    for (let month = 1; month <= 12; month++) {
-
-        const dates =
-            DOOMSDAY_DATES[month];
-
-        dates.forEach(day => {
-
-            answers.push({
-                value: `${month}/${day}`,
-                label: `${month}/${day}`
-            });
-
-        });
-
-    }
-
-    /*
-        Shuffle the options so that the correct answer isn't
-        always in a predictable location.
-    */
-
-    shuffleArray(answers);
-
-    createAnswerButtons(
-        "tutorial-answer-area",
-        answers,
-        callback
-    );
 }
 
 
@@ -1105,756 +1079,452 @@ function createAllDoomsdayAnswers(
 
 $("tutorial-submit").addEventListener(
     "click",
-    submitTutorialAnswer
+    () => {
+
+        submitTutorialAnswer(
+            state.tutorial.step
+        );
+
+    }
 );
 
 
-function submitTutorialAnswer() {
+function submitTutorialAnswer(step) {
 
-    const step =
-        state.tutorial.step;
+    if (state.tutorial.selectedAnswer === null) {
 
-    const date =
-        state.tutorial.date;
-
-    const calculations =
-        getYearCalculations(date.year);
-
-    const selected =
-        state.tutorial.selectedAnswer;
-
-    if (selected === null) {
         $("tutorial-feedback").innerHTML =
             `<span class="incorrect">Please choose an answer first.</span>`;
+
         return;
     }
 
+
     let correct = false;
+    let correctAnswer;
 
-    if (step === 1) {
-        correct = Number(selected) === calculations.groupsOf12;
+
+    /* -----------------------------------------
+       STEPS 1–7
+    ----------------------------------------- */
+
+    if (step >= 1 && step <= 7) {
+
+        correctAnswer =
+            getTutorialCorrectAnswer(step);
+
+        correct =
+            Number(state.tutorial.selectedAnswer) ===
+            Number(correctAnswer);
+
     }
 
-    else if (step === 2) {
-        correct = Number(selected) === calculations.leftover;
-    }
 
-    else if (step === 3) {
-        correct = Number(selected) === calculations.groupsOf4;
-    }
-
-    else if (step === 4) {
-        correct = Number(selected) === calculations.centuryAnchor;
-    }
-
-    else if (step === 5) {
-        correct = Number(selected) === calculations.sum;
-    }
-
-    else if (step === 6) {
-        correct = Number(selected) === calculations.weekdayNumber;
-    }
-
-    else if (step === 7) {
-        correct = Number(selected) === calculations.weekdayNumber;
-    }
+    /* -----------------------------------------
+       STEP 8
+    ----------------------------------------- */
 
     else if (step === 8) {
-        correct = Boolean(selected) === isLeapYear(date.year);
+
+        correctAnswer =
+            isLeapYear(
+                state.tutorial.date.year
+            );
+
+        correct =
+            Boolean(
+                state.tutorial.selectedAnswer
+            ) === correctAnswer;
+
     }
+
+
+    /* -----------------------------------------
+       STEP 9
+    ----------------------------------------- */
 
     else if (step === 9) {
 
-        const expected =
-            `${date.month}/${getDoomsdayDate(date.year, date.month)}`;
+        const month =
+            state.tutorial.date.month;
 
-        correct = selected === expected;
+        const correctDay =
+            getDoomsdayDate(
+                state.tutorial.date.year,
+                month
+            );
+
+        correctAnswer =
+            `${month}-${correctDay}`;
+
+        correct =
+            state.tutorial.selectedAnswer ===
+            correctAnswer;
 
     }
+
+
+    /* -----------------------------------------
+       STEP 10
+    ----------------------------------------- */
 
     else if (step === 10) {
 
-        /*
-            Step 10 has its own two-part submission flow.
-            This function won't normally handle its first
-            part directly.
-        */
+        return submitStep10();
 
-        return;
     }
-
-
-    state.tutorial.answered = true;
-
-    document
-        .querySelectorAll("#tutorial-answer-area .answer-button")
-        .forEach(button => {
-            button.disabled = true;
-        });
-
-    hide($("tutorial-submit"));
 
 
     if (correct) {
 
-        handleTutorialCorrect(step);
-
-    } else {
-
-        handleTutorialIncorrect(step);
-    }
-
-}
-
-
-function handleTutorialCorrect(step) {
-
-    const date =
-        state.tutorial.date;
-
-    const calculations =
-        getYearCalculations(date.year);
-
-    let result = "";
-
-    if (step === 1) {
-        result = calculations.groupsOf12;
-        state.tutorial.results[1] = result;
-    }
-
-    else if (step === 2) {
-        result = calculations.leftover;
-        state.tutorial.results[2] = result;
-    }
-
-    else if (step === 3) {
-        result = calculations.groupsOf4;
-        state.tutorial.results[3] = result;
-    }
-
-    else if (step === 4) {
-        result = calculations.centuryAnchor;
-        state.tutorial.results[4] = result;
-    }
-
-    else if (step === 5) {
-        result = calculations.sum;
-    }
-
-    else if (step === 6) {
-        result = calculations.weekdayNumber;
-    }
-
-    else if (step === 7) {
-        result = calculations.weekday;
-    }
-
-    else if (step === 8) {
-        result = isLeapYear(date.year) ? "Yes" : "No";
-    }
-
-    else if (step === 9) {
-        result =
-            `${date.month}/${getDoomsdayDate(date.year, date.month)}`;
-    }
-
-
-    if (step !== 5 && step !== 10) {
-
-        completeSidebarStep(
-            "tutorial-sidebar-steps",
-            step,
-            result
-        );
-
-    }
-
-
-    $("tutorial-feedback").innerHTML =
-        `<span class="correct">Correct!</span>`;
-
-    /*
-        Step 5 permanently removes 1–4 before answering,
-        so we simply continue with the remaining sidebar.
-    */
-
-    if (step === 10) {
-
-        return;
-    }
-
-    setTimeout(() => {
-
-        state.tutorial.step++;
-
-        renderTutorialStep();
-
-    }, 700);
-
-}
-
-
-function handleTutorialIncorrect(step) {
-
-    const date =
-        state.tutorial.date;
-
-    const calculations =
-        getYearCalculations(date.year);
-
-    let message =
-        "Sorry, not quite... Try again!";
-
-
-    if (step === 5) {
-
-        const r =
-            state.tutorial.results;
-
-        message =
-            `Sorry, not quite... Your answers were ${r[1]}, ${r[2]}, ${r[3]}, and ${r[4]}; What do these add to?`;
-
-    }
-
-
-    $("tutorial-feedback").innerHTML =
-        `<span class="incorrect">${message}</span>`;
-
-    /*
-        Allow another attempt.
-    */
-
-    document
-        .querySelectorAll("#tutorial-answer-area .answer-button")
-        .forEach(button => {
-            button.disabled = false;
-        });
-
-    show($("tutorial-submit"));
-}
-
-
-/* =========================================================
-   TUTORIAL STEP 10
-========================================================= */
-
-function renderTutorialStep10Part1() {
-
-    const date =
-        state.tutorial.date;
-
-    const calculations =
-        getYearCalculations(date.year);
-
-    const doomsdayDay =
-        getDoomsdayDate(
-            date.year,
-            date.month
-        );
-
-    const startDate =
-        new Date(
-            date.year,
-            date.month - 1,
-            doomsdayDay
-        );
-
-    const targetDate =
-        new Date(
-            date.year,
-            date.month - 1,
-            date.day
-        );
-
-    const difference =
-        Math.round(
-            (
-                targetDate - startDate
-            ) / 86400000
-        );
-
-    const weeks =
-        difference >= 0
-            ? Math.floor(difference / 7)
-            : Math.ceil(difference / 7);
-
-    const startWeekday =
-        calculations.weekdayNumber;
-
-    $("tutorial-question").innerHTML =
-        `Every 7 days lands on the same weekday. Starting at our Doomsday date <strong>${MONTHS[date.month - 1]} ${doomsdayDay}</strong>, which was a <strong>${WEEKDAYS[startWeekday]}</strong>, count forward or back by 7 until you're within one week of the target date. How many full weeks can you move?`;
-
-    const answerArea =
-        $("tutorial-answer-area");
-
-    answerArea.innerHTML = "";
-
-    /*
-        Give the player both positive and negative choices.
-    */
-
-    const values = [];
-
-    for (let i = -6; i <= 6; i++) {
-        values.push(i);
-    }
-
-    createAnswerButtons(
-        "tutorial-answer-area",
-        values.map(value => ({
-            value,
-            label: String(value)
-        })),
-        value => {
-            state.tutorial.step10Weeks = value;
-            state.tutorial.step10CorrectWeeks = weeks;
-        }
-    );
-
-    show($("tutorial-submit"));
-
-    $("tutorial-submit").onclick =
-        submitTutorialStep10Part1;
-}
-
-
-function submitTutorialStep10Part1() {
-
-    const selected =
-        state.tutorial.step10Weeks;
-
-    if (selected === undefined) {
+        state.tutorial.answers[step] =
+            correctAnswer;
 
         $("tutorial-feedback").innerHTML =
-            `<span class="incorrect">Please choose an answer first.</span>`;
+            `<span class="correct">${randomCorrectMessage()}</span>`;
 
-        return;
-    }
+        $("tutorial-submit")
+            .classList.add("hidden");
 
-    const correct =
-        selected === state.tutorial.step10CorrectWeeks;
+        /*
+            Answers remain selected, but the question is
+            now locked until Next is pressed.
+        */
 
-    if (!correct) {
+        $("tutorial-answer-area")
+            .querySelectorAll("button")
+            .forEach(button => {
+                button.disabled = true;
+            });
+
+        showTutorialNextButton();
+
+    } else {
 
         $("tutorial-feedback").innerHTML =
             `<span class="incorrect">Sorry, not quite... Try again!</span>`;
 
-        return;
     }
 
-    $("tutorial-feedback").innerHTML =
-        `<span class="correct">Correct!</span>`;
-
-    hide($("tutorial-submit"));
-
-    renderTutorialStep10Part2();
 }
 
 
-function renderTutorialStep10Part2() {
+function getTutorialCorrectAnswer(step) {
 
-    const date =
-        state.tutorial.date;
+    const year =
+        state.tutorial.date.year;
 
-    const doomsdayDay =
-        getDoomsdayDate(
-            date.year,
-            date.month
-        );
+    switch (step) {
 
-    const weeks =
-        state.tutorial.step10Weeks;
+        case 1:
+            return step1(year);
 
-    const doomsdayDate =
-        new Date(
-            date.year,
-            date.month - 1,
-            doomsdayDay
-        );
+        case 2:
+            return step2(year);
 
-    const calculatedDate =
-        new Date(
-            doomsdayDate.getTime()
-            + weeks * 7 * 86400000
-        );
+        case 3:
+            return step3(year);
 
-    const targetDate =
-        new Date(
-            date.year,
-            date.month - 1,
-            date.day
-        );
+        case 4:
+            return step4(year);
 
-    const difference =
-        Math.round(
-            (
-                targetDate - calculatedDate
-            ) / 86400000
-        );
+        case 5:
+            return step5(year);
 
-    const direction =
-        difference > 0
-            ? "ahead of"
-            : "behind";
+        case 6:
+            return step6(year);
 
-    const amount =
-        Math.abs(difference);
+        case 7:
+            return step7(year);
 
-    const weeksText =
-        weeks === 1 || weeks === -1
-            ? "week"
-            : "weeks";
+        default:
+            return null;
+    }
 
-    const directionText =
-        weeks >= 0
-            ? "forward"
-            : "backward";
+}
 
-    const calculatedDay =
-        calculatedDate.getDate();
 
-    $("tutorial-question").innerHTML =
-        `Great, you've moved <strong>${Math.abs(weeks)}</strong> ${weeksText} ${directionText}! You are now at <strong>${MONTHS[calculatedDate.getMonth()]} ${calculatedDay}</strong>, and are <strong>${amount}</strong> ${amount === 1 ? "day" : "days"} ${direction} your target. Which weekday is the target date?`;
+/* =========================================================
+   TUTORIAL NEXT
+========================================================= */
+
+function showTutorialNextButton() {
+
+    $("tutorial-continue").classList.remove("hidden");
+
+    $("tutorial-continue").textContent =
+        state.tutorial.step === 10
+            ? "Finish"
+            : "Next";
+
+    $("tutorial-continue").onclick =
+        () => {
+
+            if (state.tutorial.step === 10) {
+
+                finishTutorial();
+
+                return;
+            }
+
+            state.tutorial.step++;
+
+            renderTutorialStep();
+
+        };
+
+}
+
+
+function finishTutorial() {
 
     /*
-        IMPORTANT:
-        Clear the previous answer buttons.
+        Remove the answer box only AFTER Step 10 has
+        actually been answered.
     */
 
     $("tutorial-answer-area").innerHTML = "";
 
-    createWeekdayAnswers(
-        $("tutorial-answer-area"),
-        getWeekday(date),
-        value => {
-            state.tutorial.step10FinalAnswer = value;
-        }
-    );
+    $("tutorial-submit").classList.add("hidden");
 
-    show($("tutorial-submit"));
+    $("tutorial-question").textContent =
+        "You did it! 🎉";
 
-    $("tutorial-submit").onclick =
-        submitTutorialStep10Part2;
+    $("tutorial-main-text").innerHTML =
+        `<div class="sentence">You just walked through the entire Doomsday Algorithm!</div>`;
 
-    $("tutorial-feedback").innerHTML = "";
-}
+    $("tutorial-continue").classList.add("hidden");
 
-
-function submitTutorialStep10Part2() {
-
-    const selected =
-        state.tutorial.step10FinalAnswer;
-
-    if (selected === undefined) {
-
-        $("tutorial-feedback").innerHTML =
-            `<span class="incorrect">Please choose an answer first.</span>`;
-
-        return;
-    }
-
-    const correct =
-        selected === getWeekday(
-            state.tutorial.date
-        );
-
-    if (!correct) {
-
-        $("tutorial-feedback").innerHTML =
-            `<span class="incorrect">Sorry, not quite... Try again!</span>`;
-
-        return;
-    }
-
-    $("tutorial-feedback").innerHTML =
-        `<span class="correct">Correct! You solved the date!</span>`;
-
-    hide($("tutorial-submit"));
-
-    /*
-        Remove the answer box ONLY after the final
-        Tutorial question is answered.
-    */
-
-    hide($("tutorial-answer-area"));
-
-    setTimeout(() => {
-
-        $("tutorial-question").innerHTML =
-            `<strong>Fantastic!</strong><br><br>You successfully worked through all 10 steps and calculated ${formatDate(state.tutorial.date)}.`;
-
-    }, 300);
 }
 
 
 /* =========================================================
-   GUIDED MODE
+   STEP 10
 ========================================================= */
 
-function resetGuided() {
+function renderStep10Part1() {
 
-    state.guided = {
-        date: null,
-        selectedAnswer: null,
-        answered: false,
-        hintsLeft: 3,
-        revealedSteps: new Set()
-    };
+    $("tutorial-step-title").textContent =
+        "Step 10";
 
-    resetSidebar("guided-sidebar-steps");
+    const month =
+        state.tutorial.date.month;
 
-    $("guided-feedback").innerHTML = "";
-    $("guided-answer-area").innerHTML = "";
-
-    show($("guided-submit"));
-}
-
-
-function startGuided() {
-
-    resetGuided();
-
-    createSidebar(
-        "guided-sidebar-steps",
-        "guided"
-    );
-
-    state.guided.date =
-        randomDate(
-            GENERAL_MIN_YEAR,
-            GENERAL_MAX_YEAR
+    const doomDay =
+        getDoomsdayDate(
+            state.tutorial.date.year,
+            month
         );
 
-    setSidebarDate(
-        "guided-sidebar-date",
-        state.guided.date
+    const doomWeekday =
+        step7(
+            state.tutorial.date.year
+        );
+
+    setTutorialContent(
+        `Every 7 days lands on the same weekday. Starting at our Doomsday date ${formatMonthDay(month, doomDay)}, which was a ${WEEKDAYS[doomWeekday]}, count forward or back by 7 until you're within one week of the target date.`,
+        `How many full weeks can you move?`
     );
 
-    $("guided-hints-left").textContent = 3;
-
-    showScreen("guided-screen");
-
-    renderGuided();
-}
-
-
-function renderGuided() {
-
-    const date =
-        state.guided.date;
-
-    $("guided-date-display").textContent =
-        formatDate(date);
-
-    $("guided-answer-area").innerHTML = "";
-
-    $("guided-feedback").innerHTML = "";
-
-    show($("guided-submit"));
-
-    createWeekdayAnswers(
-        $("guided-answer-area"),
-        getWeekday(date),
+    createAnswerButtons(
+        $("tutorial-answer-area"),
+        numericAnswers(-4, 4, true),
         value => {
-            state.guided.selectedAnswer = value;
+
+            state.tutorial.selectedAnswer =
+                Number(value);
+
+            $("tutorial-submit")
+                .classList.remove("hidden");
+
         }
     );
 
-    /*
-        Set all hint buttons back to available.
-    */
-
-    document
-        .querySelectorAll("#guided-sidebar-steps .sidebar-step")
-        .forEach(step => {
-
-            step.classList.remove(
-                "revealed",
-                "completed"
-            );
-
-            step.classList.add(
-                "hint-available"
-            );
-
-        });
-}
-
-
-function useGuidedHint(stepNumber) {
-
-    if (state.guided.hintsLeft <= 0) {
-
-        $("guided-feedback").innerHTML =
-            `<span class="incorrect">You've used all 3 hints for this problem.</span>`;
-
-        return;
-    }
-
-    if (
-        state.guided.revealedSteps.has(stepNumber)
-    ) {
-        return;
-    }
-
-    state.guided.revealedSteps.add(stepNumber);
-
-    state.guided.hintsLeft--;
-
-    $("guided-hints-left").textContent =
-        state.guided.hintsLeft;
-
-    const date =
-        state.guided.date;
-
-    const calculations =
-        getYearCalculations(date.year);
-
-    let result = "";
-
-    if (stepNumber === 1) {
-        result =
-            `Answer: ${calculations.groupsOf12}`;
-    }
-
-    else if (stepNumber === 2) {
-        result =
-            `Answer: ${calculations.leftover}`;
-    }
-
-    else if (stepNumber === 3) {
-        result =
-            `Answer: ${calculations.groupsOf4}`;
-    }
-
-    else if (stepNumber === 4) {
-        result =
-            `Answer: ${calculations.centuryAnchor}`;
-    }
-
-    else if (stepNumber === 5) {
-        result =
-            `Add ${calculations.groupsOf12} + ${calculations.leftover} + ${calculations.groupsOf4} + ${calculations.centuryAnchor}.`;
-    }
-
-    else if (stepNumber === 6) {
-        result =
-            `Keep subtracting 7 from ${calculations.sum}.`;
-    }
-
-    else if (stepNumber === 7) {
-        result =
-            `${calculations.weekdayNumber} = ${calculations.weekday}.`;
-    }
-
-    else if (stepNumber === 8) {
-        result =
-            isLeapYear(date.year)
-                ? "Yes, this is a leap year."
-                : "No, this is not a leap year.";
-    }
-
-    else if (stepNumber === 9) {
-        result =
-            `The Doomsday date is ${MONTHS[date.month - 1]} ${getDoomsdayDate(date.year, date.month)}.`;
-    }
-
-    else if (stepNumber === 10) {
-        result =
-            `Start at ${MONTHS[date.month - 1]} ${getDoomsdayDate(date.year, date.month)} and move in 7-day increments.`;
-    }
-
-    const element =
-        document.querySelector(
-            `#guided-sidebar-steps .sidebar-step[data-step="${stepNumber}"]`
-        );
-
-    if (element) {
-
-        element.classList.remove(
-            "hint-available"
-        );
-
-        element.classList.add(
-            "revealed"
-        );
-
-        const resultElement =
-            element.querySelector(".sidebar-result");
-
-        if (resultElement) {
-            resultElement.textContent = result;
-        }
-
-    }
-
-    if (state.guided.hintsLeft === 0) {
-
-        document
-            .querySelectorAll("#guided-sidebar-steps .sidebar-step")
-            .forEach(step => {
-                step.classList.remove(
-                    "hint-available"
-                );
-            });
-
-    }
+    $("tutorial-submit").onclick =
+        submitStep10Part1;
 
 }
 
 
-$("guided-submit").addEventListener(
-    "click",
-    submitGuided
-);
+function submitStep10Part1() {
 
+    if (state.tutorial.selectedAnswer === null) {
 
-function submitGuided() {
-
-    const selected =
-        state.guided.selectedAnswer;
-
-    if (selected === null) {
-
-        $("guided-feedback").innerHTML =
+        $("tutorial-feedback").innerHTML =
             `<span class="incorrect">Please choose an answer first.</span>`;
 
         return;
     }
 
-    const correct =
-        selected === getWeekday(
-            state.guided.date
+    const weeks =
+        Number(state.tutorial.selectedAnswer);
+
+    const date =
+        state.tutorial.date;
+
+    const doomDay =
+        getDoomsdayDate(
+            date.year,
+            date.month
         );
 
-    if (correct) {
+    const startingDate = {
+        year: date.year,
+        month: date.month,
+        day: doomDay
+    };
 
-        $("guided-feedback").innerHTML =
-            `<span class="correct">Correct!</span>`;
+    const movedDate =
+        new Date(
+            dateToJS(startingDate).getTime() +
+            weeks * 7 * 24 * 60 * 60 * 1000
+        );
 
-        hide($("guided-submit"));
+    const calculatedDate = {
+        year: movedDate.getFullYear(),
+        month: movedDate.getMonth() + 1,
+        day: movedDate.getDate()
+    };
 
-        setTimeout(() => {
+    const difference =
+        date.day -
+        calculatedDate.day;
 
-            startGuided();
+    /*
+        Since the question is intentionally restricted to
+        the same month, this is sufficient for the generated
+        tutorial problem.
+    */
 
-        }, 900);
+    const correctWeeks =
+        Math.floor(
+            (date.day - doomDay) / 7
+        );
 
-    } else {
+    if (weeks !== correctWeeks) {
 
-        $("guided-feedback").innerHTML =
+        $("tutorial-feedback").innerHTML =
             `<span class="incorrect">Sorry, not quite... Try again!</span>`;
 
-        state.guided.selectedAnswer = null;
-
-        document
-            .querySelectorAll("#guided-answer-area .answer-button")
-            .forEach(button => {
-                button.classList.remove("selected");
-            });
-
+        return;
     }
 
+    state.tutorial.answers[10] = weeks;
+
+    $("tutorial-feedback").innerHTML =
+        `<span class="correct">${randomCorrectMessage()}</span>`;
+
+    $("tutorial-answer-area")
+        .querySelectorAll("button")
+        .forEach(button => {
+            button.disabled = true;
+        });
+
+    $("tutorial-submit").classList.add("hidden");
+
+    renderStep10Part2(
+        calculatedDate
+    );
+
+}
+
+
+function renderStep10Part2(calculatedDate) {
+
+    const target =
+        state.tutorial.date;
+
+    const dayDifference =
+        target.day -
+        calculatedDate.day;
+
+    let direction;
+
+    if (dayDifference > 0) {
+        direction = "ahead of";
+    } else if (dayDifference < 0) {
+        direction = "behind";
+    } else {
+        direction = "on";
+    }
+
+    const absoluteDifference =
+        Math.abs(dayDifference);
+
+    $("tutorial-step-title").textContent =
+        "Step 10 — Final Step";
+
+    setTutorialContent(
+        `Great, you've moved ${formatSignedWeeks(state.tutorial.answers[10])}! You are now at ${formatMonthDay(calculatedDate.month, calculatedDate.day)}, and you're ${absoluteDifference} ${absoluteDifference === 1 ? "day" : "days"} ${direction} your target.`,
+        `Which weekday is the target date?`
+    );
+
+    $("tutorial-answer-area").innerHTML = "";
+
+    createAnswerButtons(
+        $("tutorial-answer-area"),
+        weekdayAnswers(),
+        value => {
+
+            state.tutorial.selectedAnswer =
+                Number(value);
+
+            $("tutorial-submit")
+                .classList.remove("hidden");
+
+        }
+    );
+
+    $("tutorial-submit").onclick =
+        () => {
+
+            const correct =
+                Number(
+                    state.tutorial.selectedAnswer
+                ) ===
+                calculateWeekday(target);
+
+            if (!correct) {
+
+                $("tutorial-feedback").innerHTML =
+                    `<span class="incorrect">Sorry, not quite... Try again!</span>`;
+
+                return;
+
+            }
+
+            $("tutorial-feedback").innerHTML =
+                `<span class="correct">${randomCorrectMessage()}</span>`;
+
+            $("tutorial-submit")
+                .classList.add("hidden");
+
+            $("tutorial-answer-area")
+                .querySelectorAll("button")
+                .forEach(button => {
+                    button.disabled = true;
+                });
+
+            showTutorialNextButton();
+
+        };
+
+}
+
+
+function formatSignedWeeks(weeks) {
+
+    if (weeks > 0) {
+        return `+${weeks} ${weeks === 1 ? "week" : "weeks"} forward`;
+    }
+
+    if (weeks < 0) {
+        const n = Math.abs(weeks);
+
+        return `${n} ${n === 1 ? "week" : "weeks"} backward`;
+    }
+
+    return "0 weeks";
 }
 
 
@@ -1864,19 +1534,11 @@ function submitGuided() {
 
 function resetEndless() {
 
-    state.endless = {
-        date: null,
-        streak: 0,
-        selectedAnswer: null,
-        answered: false
-    };
+    state.endless.date = null;
+    state.endless.streak = 0;
+    state.endless.selectedAnswer = null;
+    state.endless.answered = false;
 
-    $("endless-feedback").innerHTML = "";
-    $("endless-answer-area").innerHTML = "";
-
-    $("endless-streak").textContent = "0";
-
-    show($("endless-submit"));
 }
 
 
@@ -1884,38 +1546,41 @@ function startEndless() {
 
     resetEndless();
 
-    state.endless.date =
-        randomDate(
-            GENERAL_MIN_YEAR,
-            GENERAL_MAX_YEAR
-        );
+    state.currentMode = "endless";
 
     showScreen("endless-screen");
 
-    renderEndless();
+    nextEndlessQuestion();
 
 }
 
 
-function renderEndless() {
+function nextEndlessQuestion() {
 
-    const date =
-        state.endless.date;
+    state.endless.date =
+        randomDate(1600, 2499);
 
-    $("endless-date-display").textContent =
-        formatDate(date);
+    state.endless.selectedAnswer = null;
+    state.endless.answered = false;
 
-    $("endless-answer-area").innerHTML = "";
+    $("endless-date").textContent =
+        formatDate(state.endless.date);
 
     $("endless-feedback").innerHTML = "";
 
-    show($("endless-submit"));
+    $("endless-submit").classList.add("hidden");
 
-    createWeekdayAnswers(
+    createAnswerButtons(
         $("endless-answer-area"),
-        getWeekday(date),
+        weekdayAnswers(),
         value => {
-            state.endless.selectedAnswer = value;
+
+            state.endless.selectedAnswer =
+                Number(value);
+
+            $("endless-submit")
+                .classList.remove("hidden");
+
         }
     );
 
@@ -1930,19 +1595,17 @@ $("endless-submit").addEventListener(
 
 function submitEndless() {
 
-    const selected =
-        state.endless.selectedAnswer;
-
-    if (selected === null) {
+    if (state.endless.selectedAnswer === null) {
 
         $("endless-feedback").innerHTML =
-            `<span class="incorrect">Please choose an answer first.</span>`;
+            "Please choose an answer first.";
 
         return;
     }
 
     const correct =
-        selected === getWeekday(
+        state.endless.selectedAnswer ===
+        calculateWeekday(
             state.endless.date
         );
 
@@ -1951,111 +1614,664 @@ function submitEndless() {
         state.endless.streak++;
 
         $("endless-streak").textContent =
-            state.endless.streak;
+            `Streak: ${state.endless.streak}`;
 
         $("endless-feedback").innerHTML =
-            `<span class="correct">Correct!</span>`;
+            `<span class="correct">${randomCorrectMessage()}</span>`;
 
-        setTimeout(() => {
+        $("endless-submit").classList.add("hidden");
 
-            state.endless.date =
-                randomDate(
-                    GENERAL_MIN_YEAR,
-                    GENERAL_MAX_YEAR
-                );
-
-            state.endless.selectedAnswer = null;
-
-            renderEndless();
-
-        }, 500);
-
-    } else {
-
-        $("endless-feedback").innerHTML =
-            `<span class="incorrect">Incorrect! Your final streak was ${state.endless.streak}.</span>`;
-
-        hide($("endless-submit"));
-
-        document
-            .querySelectorAll("#endless-answer-area .answer-button")
+        $("endless-answer-area")
+            .querySelectorAll("button")
             .forEach(button => {
                 button.disabled = true;
             });
 
+        const next =
+            document.createElement("button");
+
+        next.className =
+            "primary-button";
+
+        next.textContent =
+            "Next";
+
+        next.id =
+            "endless-next";
+
+        next.onclick = () => {
+
+            next.remove();
+
+            nextEndlessQuestion();
+
+        };
+
+        $("endless-submit")
+            .parentNode
+            .appendChild(next);
+
+    } else {
+
+        $("endless-feedback").innerHTML =
+            `<span class="incorrect">Sorry, not quite! Your streak was ${state.endless.streak}.</span>`;
+
+        state.endless.streak = 0;
+
+        $("endless-streak").textContent =
+            "Streak: 0";
+
+        $("endless-submit").classList.add("hidden");
+
+        $("endless-answer-area")
+            .querySelectorAll("button")
+            .forEach(button => {
+                button.disabled = true;
+            });
+
+        const restart =
+            document.createElement("button");
+
+        restart.className =
+            "primary-button";
+
+        restart.textContent =
+            "Restart";
+
+        restart.onclick =
+            nextEndlessQuestion;
+
+        $("endless-submit")
+            .parentNode
+            .appendChild(restart);
+
     }
 
 }
+
+
+$("endless-restart").onclick =
+    startEndless;
+
+
+/* =========================================================
+   GUIDED MODE
+========================================================= */
+
+function resetGuided() {
+
+    state.guided.date = null;
+    state.guided.hintsRemaining = 3;
+    state.guided.usedHints = [];
+    state.guided.selectedAnswer = null;
+    state.guided.answered = false;
+
+}
+
+
+function startGuided() {
+
+    resetGuided();
+
+    state.currentMode = "guided";
+
+    showScreen("guided-screen");
+
+    nextGuidedQuestion();
+
+}
+
+
+function nextGuidedQuestion() {
+
+    state.guided.date =
+        randomDate(1600, 2499);
+
+    state.guided.hintsRemaining = 3;
+    state.guided.usedHints = [];
+    state.guided.selectedAnswer = null;
+    state.guided.answered = false;
+
+    $("guided-date").textContent =
+        formatDate(state.guided.date);
+
+    $("guided-feedback").innerHTML = "";
+
+    $("guided-submit").classList.add("hidden");
+
+    updateGuidedHints();
+
+    createAnswerButtons(
+        $("guided-answer-area"),
+        weekdayAnswers(),
+        value => {
+
+            state.guided.selectedAnswer =
+                Number(value);
+
+            $("guided-submit")
+                .classList.remove("hidden");
+
+        }
+    );
+
+}
+
+
+function updateGuidedHints() {
+
+    $("guided-hint-count").textContent =
+        `${state.guided.hintsRemaining} ${
+            state.guided.hintsRemaining === 1
+                ? "hint"
+                : "hints"
+        } remaining`;
+
+    document
+        .querySelectorAll(".hint-button")
+        .forEach(button => {
+
+            const step =
+                Number(
+                    button.dataset.hintStep
+                );
+
+            button.disabled =
+                state.guided.hintsRemaining <= 0 ||
+                state.guided.usedHints.includes(step);
+
+        });
+
+}
+
+
+document
+    .querySelectorAll(".hint-button")
+    .forEach(button => {
+
+        button.addEventListener(
+            "click",
+            () => {
+
+                if (state.guided.hintsRemaining <= 0) {
+                    return;
+                }
+
+                const step =
+                    Number(
+                        button.dataset.hintStep
+                    );
+
+                if (
+                    state.guided.usedHints
+                        .includes(step)
+                ) {
+                    return;
+                }
+
+                state.guided.usedHints.push(step);
+
+                state.guided.hintsRemaining--;
+
+                $("guided-feedback").innerHTML =
+                    `<span>${getGuidedHint(step)}</span>`;
+
+                updateGuidedHints();
+
+            }
+        );
+
+    });
+
+
+function getGuidedHint(step) {
+
+    const year =
+        state.guided.date.year;
+
+    switch (step) {
+
+        case 1:
+            return `The last two digits are ${year % 100}.`;
+
+        case 2:
+            return `Take 12 away from ${year % 100} until you can't anymore.`;
+
+        case 3:
+            return `Look at how many groups of 4 fit into the leftover from Step 2.`;
+
+        case 4:
+            return `The century anchor follows the repeating 4-century pattern.`;
+
+        case 5:
+            return `Add the results from Steps 1–4 together.`;
+
+        case 6:
+            return `Take 7 away from the Step 5 sum until you can't anymore.`;
+
+        case 7:
+            return `Your leftover number corresponds to a weekday from 0–6.`;
+
+        case 8:
+            return isLeapYear(year)
+                ? "This year is a leap year."
+                : "This year is not a leap year.";
+
+        case 9:
+            return `Find the Doomsday date for ${MONTHS[state.guided.date.month - 1]}.`;
+
+        case 10:
+            return `Compare your target date with the month's Doomsday date.`;
+
+        default:
+            return "Think through the algorithm one step at a time.";
+    }
+
+}
+
+
+$("guided-submit").addEventListener(
+    "click",
+    submitGuided
+);
+
+
+function submitGuided() {
+
+    if (state.guided.selectedAnswer === null) {
+
+        $("guided-feedback").innerHTML =
+            "Please choose an answer first.";
+
+        return;
+    }
+
+    const correct =
+        state.guided.selectedAnswer ===
+        calculateWeekday(
+            state.guided.date
+        );
+
+    if (correct) {
+
+        $("guided-feedback").innerHTML =
+            `<span class="correct">${randomCorrectMessage()}</span>`;
+
+        $("guided-submit").classList.add("hidden");
+
+        $("guided-answer-area")
+            .querySelectorAll("button")
+            .forEach(button => {
+                button.disabled = true;
+            });
+
+        const next =
+            document.createElement("button");
+
+        next.className =
+            "primary-button";
+
+        next.textContent =
+            "Next";
+
+        next.onclick =
+            () => {
+
+                next.remove();
+
+                nextGuidedQuestion();
+
+            };
+
+        $("guided-submit")
+            .parentNode
+            .appendChild(next);
+
+    } else {
+
+        $("guided-feedback").innerHTML =
+            `<span class="incorrect">Sorry, not quite... Try again!</span>`;
+
+    }
+
+}
+
+
+$("guided-restart").onclick =
+    startGuided;
+
+
+/* =========================================================
+   PRACTICE MODE
+========================================================= */
+
+function resetPractice() {
+
+    state.practice.category = null;
+    state.practice.question = null;
+    state.practice.answer = null;
+    state.practice.answered = false;
+
+}
+
+
+function startPractice() {
+
+    resetPractice();
+
+    state.currentMode = "practice";
+
+    showScreen("practice-screen");
+
+    $("practice-category-area")
+        .classList.remove("hidden");
+
+    $("practice-question-area")
+        .classList.add("hidden");
+
+}
+
+
+document
+    .querySelectorAll(".category-button")
+    .forEach(button => {
+
+        button.addEventListener(
+            "click",
+            () => {
+
+                state.practice.category =
+                    button.dataset.category;
+
+                $("practice-category-area")
+                    .classList.add("hidden");
+
+                $("practice-question-area")
+                    .classList.remove("hidden");
+
+                nextPracticeQuestion();
+
+            }
+        );
+
+    });
+
+
+function nextPracticeQuestion() {
+
+    state.practice.answered = false;
+
+    $("practice-feedback").innerHTML = "";
+
+    $("practice-next")
+        .classList.add("hidden");
+
+    $("practice-input").value = "";
+
+    generatePracticeQuestion();
+
+}
+
+
+function generatePracticeQuestion() {
+
+    const category =
+        state.practice.category;
+
+
+    /* WEEKDAY */
+
+    if (category === "weekday") {
+
+        const weekday =
+            Math.floor(Math.random() * 7);
+
+        state.practice.question =
+            `What number represents ${WEEKDAYS[weekday]}?`;
+
+        state.practice.answer =
+            weekday;
+
+    }
+
+
+    /* DOOMSDAY */
+
+    else if (category === "doomsday") {
+
+        const entries = [];
+
+        Object.entries(DOOMSDAY_DATES)
+            .forEach(([month, dates]) => {
+
+                dates.forEach(day => {
+
+                    entries.push({
+                        month: Number(month),
+                        day
+                    });
+
+                });
+
+            });
+
+        const chosen =
+            entries[
+                Math.floor(
+                    Math.random() * entries.length
+                )
+            ];
+
+        state.practice.question =
+            `What is the Doomsday date for ${MONTHS[chosen.month - 1]}?`;
+
+        state.practice.answer =
+            `${chosen.month}/${chosen.day}`;
+
+    }
+
+
+    /* CENTURY */
+
+    else if (category === "century") {
+
+        const century =
+            16 +
+            Math.floor(Math.random() * 9);
+
+        const anchor =
+            step4(century * 100);
+
+        state.practice.question =
+            `What is the century anchor for the ${century}00s?`;
+
+        state.practice.answer =
+            anchor;
+
+    }
+
+
+    /* ALGORITHM */
+
+    else {
+
+        const year =
+            1600 +
+            Math.floor(
+                Math.random() * 900
+            );
+
+        const step =
+            Math.floor(Math.random() * 6) + 1;
+
+        const answers = {
+            1: step1(year),
+            2: step2(year),
+            3: step3(year),
+            4: step4(year),
+            5: step5(year),
+            6: step6(year)
+        };
+
+        state.practice.question =
+            `For the year ${year}, what is the answer to Step ${step}?`;
+
+        state.practice.answer =
+            answers[step];
+
+    }
+
+
+    $("practice-question").textContent =
+        state.practice.question;
+
+}
+
+
+$("practice-submit").onclick =
+    submitPractice;
+
+
+function submitPractice() {
+
+    const input =
+        $("practice-input")
+            .value
+            .trim()
+            .toLowerCase();
+
+    if (!input) {
+
+        $("practice-feedback").textContent =
+            "Please enter an answer first.";
+
+        return;
+    }
+
+    const correctAnswer =
+        String(state.practice.answer)
+            .toLowerCase();
+
+    if (input === correctAnswer) {
+
+        $("practice-feedback").innerHTML =
+            `<span class="correct">${randomCorrectMessage()}</span>`;
+
+        $("practice-submit")
+            .classList.add("hidden");
+
+        $("practice-next")
+            .classList.remove("hidden");
+
+    } else {
+
+        $("practice-feedback").innerHTML =
+            `<span class="incorrect">Sorry, not quite... Try again!</span>`;
+
+    }
+
+}
+
+
+$("practice-next").onclick =
+    () => {
+
+        $("practice-submit")
+            .classList.remove("hidden");
+
+        nextPracticeQuestion();
+
+    };
+
+
+$("practice-restart").onclick =
+    startPractice;
 
 
 /* =========================================================
    QUIZ MODE
 ========================================================= */
 
-function resetQuiz() {
+function startQuizSetup() {
 
-    state.quiz = {
-        total: 10,
-        current: 0,
-        correct: 0,
-        date: null,
-        selectedAnswer: null,
-        answered: false
-    };
+    showScreen("quiz-setup-screen");
 
-    show($("quiz-setup"));
-
-    hide($("quiz-question-box"));
-    hide($("quiz-results"));
-
-    $("quiz-feedback").innerHTML = "";
-
-    $("quiz-slider").value = 10;
-    $("quiz-question-count").textContent = "10";
 }
 
 
-function startQuizSetup() {
+$("quiz-count-slider").addEventListener(
+    "input",
+    event => {
 
-    resetQuiz();
+        $("quiz-count-value").textContent =
+            event.target.value;
 
-    state.currentMode = "quiz";
+    }
+);
+
+
+$("start-quiz-button").onclick =
+    startQuiz;
+
+
+function startQuiz() {
+
+    state.quiz.total =
+        Number(
+            $("quiz-count-slider").value
+        );
+
+    state.quiz.current = 0;
+    state.quiz.correct = 0;
+    state.quiz.selectedAnswer = null;
+    state.quiz.answered = false;
+    state.quiz.seconds = 0;
 
     showScreen("quiz-screen");
 
+    startQuizTimer();
+
+    nextQuizQuestion();
+
 }
 
 
-$("quiz-slider").addEventListener(
-    "input",
-    () => {
+function startQuizTimer() {
 
-        $("quiz-question-count").textContent =
-            $("quiz-slider").value;
+    clearInterval(state.quiz.timer);
 
-    }
-);
+    state.quiz.seconds = 0;
+
+    updateQuizTimer();
+
+    state.quiz.timer =
+        setInterval(() => {
+
+            state.quiz.seconds++;
+
+            updateQuizTimer();
+
+        }, 1000);
+
+}
 
 
-$("quiz-start").addEventListener(
-    "click",
-    () => {
+function updateQuizTimer() {
 
-        state.quiz.total =
-            Number($("quiz-slider").value);
+    const minutes =
+        Math.floor(
+            state.quiz.seconds / 60
+        );
 
-        state.quiz.current = 0;
-        state.quiz.correct = 0;
+    const seconds =
+        String(
+            state.quiz.seconds % 60
+        ).padStart(2, "0");
 
-        hide($("quiz-setup"));
-        hide($("quiz-results"));
+    $("quiz-timer").textContent =
+        `${minutes}:${seconds}`;
 
-        show($("quiz-question-box"));
-
-        nextQuizQuestion();
-
-    }
-);
+}
 
 
 function nextQuizQuestion() {
@@ -2073,82 +2289,114 @@ function nextQuizQuestion() {
     state.quiz.current++;
 
     state.quiz.date =
-        randomDate(
-            GENERAL_MIN_YEAR,
-            GENERAL_MAX_YEAR
-        );
+        randomDate(1600, 2499);
 
     state.quiz.selectedAnswer = null;
+    state.quiz.answered = false;
 
-    $("quiz-progress").textContent =
-        `Question ${state.quiz.current} of ${state.quiz.total}`;
+    $("quiz-question-number").textContent =
+        `${state.quiz.current} / ${state.quiz.total}`;
 
-    $("quiz-date-display").textContent =
+    $("quiz-date").textContent =
         formatDate(state.quiz.date);
-
-    $("quiz-answer-area").innerHTML = "";
 
     $("quiz-feedback").innerHTML = "";
 
-    show($("quiz-submit"));
+    $("quiz-submit").classList.add("hidden");
 
-    createWeekdayAnswers(
+    createAnswerButtons(
         $("quiz-answer-area"),
-        getWeekday(state.quiz.date),
+        weekdayAnswers(),
         value => {
-            state.quiz.selectedAnswer = value;
+
+            state.quiz.selectedAnswer =
+                Number(value);
+
+            $("quiz-submit")
+                .classList.remove("hidden");
+
         }
     );
 
 }
 
 
-$("quiz-submit").addEventListener(
-    "click",
-    submitQuizAnswer
-);
+$("quiz-submit").onclick =
+    submitQuiz;
 
 
-function submitQuizAnswer() {
+function submitQuiz() {
 
-    const selected =
-        state.quiz.selectedAnswer;
+    if (state.quiz.selectedAnswer === null) {
 
-    if (selected === null) {
-
-        $("quiz-feedback").innerHTML =
-            `<span class="incorrect">Please choose an answer first.</span>`;
+        $("quiz-feedback").textContent =
+            "Please choose an answer first.";
 
         return;
     }
 
     const correct =
-        selected === getWeekday(
+        state.quiz.selectedAnswer ===
+        calculateWeekday(
             state.quiz.date
         );
 
     if (correct) {
+
         state.quiz.correct++;
+
+        $("quiz-feedback").innerHTML =
+            `<span class="correct">${randomCorrectMessage()}</span>`;
+
+    } else {
+
+        $("quiz-feedback").innerHTML =
+            `<span class="incorrect">Sorry, not quite!</span>`;
+
     }
 
-    /*
-        Do not show the score during the quiz.
-    */
+    $("quiz-submit").classList.add("hidden");
 
-    hide($("quiz-submit"));
+    $("quiz-answer-area")
+        .querySelectorAll("button")
+        .forEach(button => {
+            button.disabled = true;
+        });
 
-    setTimeout(() => {
+    const next =
+        document.createElement("button");
 
-        nextQuizQuestion();
+    next.className =
+        "primary-button";
 
-    }, 250);
+    next.textContent =
+        state.quiz.current === state.quiz.total
+            ? "Finish"
+            : "Next";
+
+    next.onclick =
+        () => {
+
+            next.remove();
+
+            nextQuizQuestion();
+
+        };
+
+    $("quiz-submit")
+        .parentNode
+        .appendChild(next);
 
 }
 
 
+/* =========================================================
+   QUIZ GRADING
+========================================================= */
+
 function getQuizGrade(percent) {
 
-    if (percent >= 97) return "A+";
+    if (percent === 100) return "A+";
     if (percent >= 93) return "A";
     if (percent >= 90) return "A-";
 
@@ -2191,40 +2439,48 @@ const QUIZ_MESSAGES = {
 };
 
 
-function gradeClass(grade) {
+const QUIZ_GRADE_COLORS = {
 
-    return "grade-" +
-        grade
-            .toLowerCase()
-            .replace("+", "-plus")
-            .replace("-", "-minus");
-}
+    "A+": "#29CC57",
+    "A": "#29CC57",
+    "A-": "#29CC57",
+
+    "B+": "#BAE52D",
+    "B": "#BAE52D",
+    "B-": "#BAE52D",
+
+    "C+": "#FFC926",
+    "C": "#FFC926",
+    "C-": "#FFC926",
+
+    "D+": "#FF8D23",
+    "D": "#FF8D23",
+    "D-": "#FF8D23",
+
+    "F": "#FF5D5D"
+
+};
 
 
 function finishQuiz() {
 
-    hide($("quiz-question-box"));
-    hide($("quiz-setup"));
-
-    show($("quiz-results"));
+    clearInterval(state.quiz.timer);
 
     const percent =
-        (
-            state.quiz.correct /
-            state.quiz.total
-        ) * 100;
+        Math.round(
+            (state.quiz.correct /
+                state.quiz.total) *
+            100
+        );
 
     const grade =
         getQuizGrade(percent);
 
-    const gradeElement =
-        $("quiz-grade");
-
-    gradeElement.textContent =
+    $("quiz-grade").textContent =
         grade;
 
-    gradeElement.className =
-        gradeClass(grade);
+    $("quiz-grade").style.color =
+        QUIZ_GRADE_COLORS[grade];
 
     $("quiz-score").textContent =
         `You got ${state.quiz.correct} out of ${state.quiz.total} correct`;
@@ -2232,487 +2488,126 @@ function finishQuiz() {
     $("quiz-message").textContent =
         `"${QUIZ_MESSAGES[grade]}"`;
 
+    showScreen("quiz-results-screen");
+
 }
 
 
-$("quiz-again").addEventListener(
-    "click",
-    () => {
-
-        transitionTo(() => {
-            startQuizSetup();
-        });
-
-    }
-);
+$("quiz-again").onclick =
+    startQuizSetup;
 
 
 /* =========================================================
-   PRACTICE MODE
+   HOME BUTTONS
 ========================================================= */
 
-function resetPractice() {
-
-    state.practice = {
-        category: null,
-        question: null,
-        answered: false
-    };
-
-    hide($("practice-question-box"));
-
-    show($("practice-category-menu"));
-
-    hide($("practice-back-category"));
-
-    $("practice-input").value = "";
-
-    $("practice-feedback").innerHTML = "";
-
-    hide($("practice-next"));
-}
-
-
-function startPracticeMenu() {
-
-    resetPractice();
-
-    state.currentMode = "practice";
-
-    showScreen("practice-screen");
-
-}
-
-
 document
-    .querySelectorAll(".practice-category")
+    .querySelectorAll(".mode-button")
     .forEach(button => {
 
-        button.addEventListener("click", () => {
+        button.addEventListener(
+            "click",
+            () => {
 
-            state.practice.category =
-                button.dataset.category;
+                const mode =
+                    button.dataset.mode;
 
-            hide($("practice-category-menu"));
-            show($("practice-question-box"));
-            show($("practice-back-category"));
+                transitionTo(() => {
 
-            nextPracticeQuestion();
+                    if (mode === "tutorial") {
+                        startTutorial();
+                    }
 
-        });
+                    else if (mode === "practice") {
+                        startPractice();
+                    }
+
+                    else if (mode === "guided") {
+                        startGuided();
+                    }
+
+                    else if (mode === "quiz") {
+                        startQuizSetup();
+                    }
+
+                    else if (mode === "endless") {
+                        startEndless();
+                    }
+
+                });
+
+            }
+        );
 
     });
 
 
-function nextPracticeQuestion() {
+/* =========================================================
+   HOME NAVIGATION
+========================================================= */
 
-    state.practice.answered = false;
+document
+    .querySelectorAll(".back-home-generic")
+    .forEach(button => {
 
-    $("practice-input").value = "";
-
-    $("practice-feedback").innerHTML = "";
-
-    hide($("practice-next"));
-
-    show($("practice-submit"));
-
-    state.practice.question =
-        generatePracticeQuestion(
-            state.practice.category
+        button.addEventListener(
+            "click",
+            showHome
         );
 
-    $("practice-question").innerHTML =
-        state.practice.question.text;
-
-}
+    });
 
 
-function generatePracticeQuestion(category) {
-
-    /* ---------------------------------------------
-       WEEKDAY NUMBERS
-    --------------------------------------------- */
-
-    if (category === "weekday") {
-
-        const weekday =
-            randomInteger(0, 6);
-
-        return {
-            text:
-                `What weekday number corresponds to <strong>${WEEKDAYS[weekday]}</strong>?`,
-            answer: String(weekday)
-        };
-
-    }
+$("tutorial-home").onclick =
+    showHome;
 
 
-    /* ---------------------------------------------
-       DOOMSDAY DATES
-    --------------------------------------------- */
+/* =========================================================
+   TUTORIAL RESTART
+========================================================= */
 
-    if (category === "doomsday") {
+$("tutorial-restart").onclick =
+    () => {
 
-        const month =
-            randomInteger(1, 12);
+        transitionTo(() => {
 
-        const dates =
-            DOOMSDAY_DATES[month];
+            /*
+                This is deliberately a complete reset.
 
-        const day =
-            dates[randomInteger(0, dates.length - 1)];
+                It clears:
+                - current step
+                - selected answer
+                - all sidebar results
+                - feedback
+                - date
+                - answer buttons
+            */
 
-        return {
-            text:
-                `What is a Doomsday date for <strong>${MONTHS[month - 1]}</strong>?`,
-            answer:
-                `${month}/${day}`,
-            alternatives:
-                dates.map(
-                    d => `${month}/${d}`
-                )
-        };
+            resetTutorialCompletely();
 
-    }
+            state.tutorial.date =
+                randomDate(1800, 2200);
 
+            $("sidebar-date").textContent =
+                formatDate(state.tutorial.date);
 
-    /* ---------------------------------------------
-       CENTURY ANCHORS
-    --------------------------------------------- */
+            $("tutorial-date-display").textContent =
+                formatDate(state.tutorial.date);
 
-    if (category === "century") {
+            state.tutorial.step = 0;
 
-        const century =
-            randomInteger(16, 24);
+            renderTutorialStep();
 
-        const year =
-            century * 100;
+        });
 
-        const weekday =
-            getCenturyAnchor(year);
-
-        return {
-            text:
-                `What is the century anchor for the <strong>${century}00s</strong>? Give the weekday number.`,
-            answer:
-                String(weekday)
-        };
-
-    }
-
-
-    /* ---------------------------------------------
-       ALGORITHM STEPS
-    --------------------------------------------- */
-
-    if (category === "algorithm") {
-
-        const date =
-            randomDate(
-                GENERAL_MIN_YEAR,
-                GENERAL_MAX_YEAR
-            );
-
-        const calculations =
-            getYearCalculations(date.year);
-
-        const questionType =
-            randomInteger(1, 6);
-
-        if (questionType === 1) {
-
-            return {
-                text:
-                    `For the year <strong>${date.year}</strong>, how many groups of 12 can you make from the last two digits?`,
-                answer:
-                    String(calculations.groupsOf12)
-            };
-
-        }
-
-        if (questionType === 2) {
-
-            return {
-                text:
-                    `For the year <strong>${date.year}</strong>, what's left over after taking 12 away until you can't anymore?`,
-                answer:
-                    String(calculations.leftover)
-            };
-
-        }
-
-        if (questionType === 3) {
-
-            return {
-                text:
-                    `For the year <strong>${date.year}</strong>, how many groups of 4 can you make from the leftover?`,
-                answer:
-                    String(calculations.groupsOf4)
-            };
-
-        }
-
-        if (questionType === 4) {
-
-            return {
-                text:
-                    `What is the century anchor for the <strong>${Math.floor(date.year / 100)}00s</strong>? Give the weekday number.`,
-                answer:
-                    String(calculations.centuryAnchor)
-            };
-
-        }
-
-        if (questionType === 5) {
-
-            return {
-                text:
-                    `For the year <strong>${date.year}</strong>, what is the sum of the four main results?`,
-                answer:
-                    String(calculations.sum)
-            };
-
-        }
-
-        return {
-            text:
-                `What is the Doomsday weekday number for <strong>${date.year}</strong>?`,
-            answer:
-                String(calculations.weekdayNumber)
-        };
-
-    }
-
-
-    return {
-        text: "Question",
-        answer: ""
     };
-}
-
-
-$("practice-submit").addEventListener(
-    "click",
-    submitPractice
-);
-
-
-function submitPractice() {
-
-    if (state.practice.answered) {
-        return;
-    }
-
-    const input =
-        $("practice-input")
-            .value
-            .trim()
-            .toLowerCase();
-
-    const question =
-        state.practice.question;
-
-    let correct = false;
-
-    if (
-        question.alternatives &&
-        question.alternatives.includes(input)
-    ) {
-        correct = true;
-    }
-
-    else {
-
-        correct =
-            input ===
-            String(question.answer)
-                .trim()
-                .toLowerCase();
-
-    }
-
-    state.practice.answered = true;
-
-    if (correct) {
-
-        $("practice-feedback").innerHTML =
-            `<span class="correct">Correct!</span>`;
-
-    } else {
-
-        $("practice-feedback").innerHTML =
-            `<span class="incorrect">Sorry, not quite... The answer was <strong>${question.answer}</strong>.</span>`;
-
-    }
-
-    hide($("practice-submit"));
-    show($("practice-next"));
-
-}
-
-
-$("practice-next").addEventListener(
-    "click",
-    nextPracticeQuestion
-);
-
-
-$("practice-back-category").addEventListener(
-    "click",
-    () => {
-
-        resetPractice();
-
-    }
-);
-
-
-/* =========================================================
-   NAVIGATION BUTTONS
-========================================================= */
-
-/*
-    Tutorial
-*/
-
-$("tutorial-restart").addEventListener(
-    "click",
-    () => {
-
-        transitionTo(() => {
-            startTutorial();
-        });
-
-    }
-);
-
-$("tutorial-home").addEventListener(
-    "click",
-    goHome
-);
-
-
-/*
-    Guided
-*/
-
-$("guided-restart").addEventListener(
-    "click",
-    () => {
-
-        transitionTo(() => {
-            startGuided();
-        });
-
-    }
-);
-
-$("guided-home").addEventListener(
-    "click",
-    goHome
-);
-
-
-/*
-    Endless
-*/
-
-$("endless-restart").addEventListener(
-    "click",
-    () => {
-
-        transitionTo(() => {
-            startEndless();
-        });
-
-    }
-);
-
-$("endless-home").addEventListener(
-    "click",
-    goHome
-);
-
-
-/*
-    Quiz
-*/
-
-$("quiz-home").addEventListener(
-    "click",
-    goHome
-);
-
-
-/*
-    Practice
-*/
-
-$("practice-home").addEventListener(
-    "click",
-    goHome
-);
-
-
-/* =========================================================
-   GENERAL UTILITIES
-========================================================= */
-
-function shuffleArray(array) {
-
-    for (
-        let i = array.length - 1;
-        i > 0;
-        i--
-    ) {
-
-        const j =
-            Math.floor(
-                Math.random() * (i + 1)
-            );
-
-        [
-            array[i],
-            array[j]
-        ] = [
-            array[j],
-            array[i]
-        ];
-
-    }
-
-    return array;
-}
-
-
-/* =========================================================
-   KEYBOARD SUPPORT
-========================================================= */
-
-$("practice-input").addEventListener(
-    "keydown",
-    event => {
-
-        if (event.key === "Enter") {
-
-            if (
-                state.practice.answered
-            ) {
-                nextPracticeQuestion();
-            } else {
-                submitPractice();
-            }
-
-        }
-
-    }
-);
 
 
 /* =========================================================
    INITIALIZATION
 ========================================================= */
 
-hideAllScreens();
-
-showScreen("home-screen");
+resetTutorialCompletely();
+resetEndless();
+resetGuided();
+resetPractice();
