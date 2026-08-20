@@ -1,0 +1,248 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Finn's Weekday Brain Training!</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+<div class="app">
+    <div id="screen-flash" aria-hidden="true"></div>
+
+    <!-- HOME -->
+    <section id="home-screen" class="screen">
+        <div class="home-inner">
+            <h1>Finn's Weekday Brain Training!</h1>
+            <p class="subtitle">
+                Calculate the weekday for <em>any date</em> in your head.
+            </p>
+
+            <div class="mode-menu">
+                <button class="mode-card" data-mode="tutorial" type="button">
+                    <div class="mode-art">Art Placeholder</div>
+                    <div class="mode-card-content">
+                        <h2>Tutorial</h2>
+                        <p>Start here! Learn the 10-step guide to the Doomsday Algorithm with guided questions.</p>
+                    </div>
+                </button>
+
+                <button class="mode-card" data-mode="practice" type="button">
+                    <div class="mode-art">Art Placeholder</div>
+                    <div class="mode-card-content">
+                        <h2>Practice</h2>
+                        <p>Target parts of the process with open-ended memory questions to improve your memory and speed.</p>
+                    </div>
+                </button>
+
+                <button class="mode-card" data-mode="guided" type="button">
+                    <div class="mode-art">Art Placeholder</div>
+                    <div class="mode-card-content">
+                        <h2>Guided</h2>
+                        <p>Solve random dates with three hints per question.</p>
+                    </div>
+                </button>
+
+                <button class="mode-card" data-mode="quiz" type="button">
+                    <div class="mode-art">Art Placeholder</div>
+                    <div class="mode-card-content">
+                        <h2>Quiz</h2>
+                        <p>Check your knowledge with a timed, customizable quiz!</p>
+                    </div>
+                </button>
+
+                <button class="mode-card" data-mode="endless" type="button">
+                    <div class="mode-art">Art Placeholder</div>
+                    <div class="mode-card-content">
+                        <h2>Endless</h2>
+                        <p>See how high of a streak you can get with rapid-fire questions.</p>
+                    </div>
+                </button>
+            </div>
+
+            <div id="home-message"></div>
+        </div>
+    </section>
+
+    <!-- TUTORIAL -->
+    <section id="tutorial-screen" class="screen game-screen hidden">
+        <div class="game-layout">
+            <aside id="tutorial-sidebar" class="progress-sidebar">
+                <h2>Your Progress</h2>
+                <div id="tutorial-sidebar-date">Date</div>
+                <div id="tutorial-sidebar-steps">
+                    <div class="sidebar-step" id="tutorial-sidebar-step-1"><strong>1.</strong> Groups of 12 <span class="sidebar-result"></span></div>
+                    <div class="sidebar-step" id="tutorial-sidebar-step-2"><strong>2.</strong> Leftover <span class="sidebar-result"></span></div>
+                    <div class="sidebar-step" id="tutorial-sidebar-step-3"><strong>3.</strong> Groups of 4 <span class="sidebar-result"></span></div>
+                    <div class="sidebar-step" id="tutorial-sidebar-step-4"><strong>4.</strong> Century Anchor <span class="sidebar-result"></span></div>
+                    <div class="sidebar-step" id="tutorial-sidebar-step-5"><strong>5.</strong> Add Them Up <span class="sidebar-result"></span></div>
+                    <div class="sidebar-step" id="tutorial-sidebar-step-6"><strong>6.</strong> Reduce by 7 <span class="sidebar-result"></span></div>
+                    <div class="sidebar-step" id="tutorial-sidebar-step-7"><strong>7.</strong> Year's Doomsday <span class="sidebar-result"></span></div>
+                    <div class="sidebar-step" id="tutorial-sidebar-step-8"><strong>8.</strong> Leap Year? <span class="sidebar-result"></span></div>
+                    <div class="sidebar-step" id="tutorial-sidebar-step-9"><strong>9.</strong> Month's Doomsday <span class="sidebar-result"></span></div>
+                    <div class="sidebar-step" id="tutorial-sidebar-step-10"><strong>10.</strong> Final Date <span class="sidebar-result"></span></div>
+                </div>
+            </aside>
+
+            <main class="game-column">
+                <div class="game-top"><div id="tutorial-step-counter">Step 0</div></div>
+                <div id="tutorial-date" class="date-display">January 1, 2000</div>
+                <div class="main-box"><div id="tutorial-main-text"></div></div>
+                <div id="tutorial-answer-box" class="answer-box">
+                    <div id="tutorial-question"></div>
+                    <div id="tutorial-answers"></div>
+                </div>
+                <div id="tutorial-feedback" class="feedback"></div>
+                <div class="below-buttons">
+                    <button id="tutorial-restart" class="text-button" type="button">Restart</button>
+                    <button id="tutorial-home" class="text-button" type="button">Back to Home</button>
+                </div>
+            </main>
+        </div>
+    </section>
+
+    <!-- GUIDED -->
+    <section id="guided-screen" class="screen game-screen hidden">
+        <div class="game-layout">
+            <aside id="guided-sidebar" class="progress-sidebar">
+                <h2>Your Progress</h2>
+                <div id="guided-sidebar-date">Date</div>
+                <div id="guided-sidebar-steps">
+                    <div class="sidebar-step" id="guided-sidebar-step-1"><strong>1.</strong> Groups of 12</div>
+                    <div class="sidebar-step" id="guided-sidebar-step-2"><strong>2.</strong> Leftover</div>
+                    <div class="sidebar-step" id="guided-sidebar-step-3"><strong>3.</strong> Groups of 4</div>
+                    <div class="sidebar-step" id="guided-sidebar-step-4"><strong>4.</strong> Century Anchor</div>
+                    <div class="sidebar-step" id="guided-sidebar-step-5"><strong>5.</strong> Add Them Up</div>
+                    <div class="sidebar-step" id="guided-sidebar-step-6"><strong>6.</strong> Reduce by 7</div>
+                    <div class="sidebar-step" id="guided-sidebar-step-7"><strong>7.</strong> Year's Doomsday</div>
+                    <div class="sidebar-step" id="guided-sidebar-step-8"><strong>8.</strong> Leap Year?</div>
+                    <div class="sidebar-step" id="guided-sidebar-step-9"><strong>9.</strong> Month's Doomsday</div>
+                    <div class="sidebar-step" id="guided-sidebar-step-10"><strong>10.</strong> Final Date</div>
+                </div>
+                <div id="guided-hints">
+                    <button class="guided-hint" data-hint="1" type="button">Hint 1</button>
+                    <button class="guided-hint" data-hint="2" type="button">Hint 2</button>
+                    <button class="guided-hint" data-hint="3" type="button">Hint 3</button>
+                </div>
+            </aside>
+
+            <main class="game-column">
+                <div class="game-top"><div class="mode-label">Guided</div></div>
+                <div id="guided-date" class="date-display">January 1, 2000</div>
+                <div class="main-box"><div id="guided-main-text"></div></div>
+                <div class="answer-box">
+                    <div id="guided-question"></div>
+                    <div id="guided-answers"></div>
+                </div>
+                <div id="guided-feedback" class="feedback"></div>
+                <div class="below-buttons">
+                    <button id="guided-restart" class="text-button" type="button">Restart</button>
+                    <button id="guided-home" class="text-button" type="button">Back to Home</button>
+                </div>
+            </main>
+        </div>
+    </section>
+
+    <!-- ENDLESS -->
+    <section id="endless-screen" class="screen game-screen hidden">
+        <div class="standalone-column endless-column">
+            <div class="endless-streak"><span aria-hidden="true">🔥</span> <span id="endless-streak">0</span> Streak</div>
+            <div class="game-top"><div class="mode-label">Endless</div></div>
+            <div id="endless-date" class="date-display">January 1, 2000</div>
+            <div class="main-box"><div id="endless-main-text"></div></div>
+            <div class="answer-box">
+                <div id="endless-question"></div>
+                <div id="endless-answers"></div>
+            </div>
+            <div id="endless-feedback" class="feedback"></div>
+            <div class="below-buttons">
+                <button id="endless-restart" class="text-button" type="button">Restart</button>
+                <button id="endless-home" class="text-button" type="button">Back to Home</button>
+            </div>
+        </div>
+    </section>
+
+    <!-- PRACTICE -->
+    <section id="practice-screen" class="screen game-screen hidden">
+        <div class="standalone-column">
+            <div class="game-top"><div class="mode-label">Practice</div></div>
+            <h2 id="practice-category-title">Choose a Category</h2>
+            <div id="practice-category-grid" class="category-grid">
+                <button class="category-button" data-category="groups12" type="button">Groups of 12</button>
+                <button class="category-button" data-category="leftover" type="button">Leftover</button>
+                <button class="category-button" data-category="groups4" type="button">Groups of 4</button>
+                <button class="category-button" data-category="century" type="button">Century Anchors</button>
+                <button class="category-button" data-category="doomsday" type="button">Doomsday Dates</button>
+                <button class="category-button" data-category="weekdays" type="button">Weekdays</button>
+            </div>
+
+            <div id="practice-game" class="hidden">
+                <div id="practice-date" class="date-display"></div>
+                <div class="main-box"><div id="practice-main-text"></div></div>
+                <div class="answer-box">
+                    <div id="practice-question"></div>
+                    <input id="practice-input" type="text" autocomplete="off">
+                    <button id="practice-submit" class="submit-button" type="button">Submit</button>
+                </div>
+                <div id="practice-feedback" class="feedback"></div>
+                <div class="below-buttons">
+                    <button id="practice-restart" class="text-button" type="button">Choose Another Category</button>
+                    <button id="practice-home" class="text-button" type="button">Back to Home</button>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- QUIZ -->
+    <section id="quiz-screen" class="screen game-screen hidden">
+        <div class="standalone-column">
+            <div id="quiz-setup" class="main-box">
+                <h2>Quiz</h2>
+                <p>Choose how many questions you want.</p>
+                <div class="slider-row">
+                    <input id="quiz-count" type="range" min="1" max="50" value="10">
+                    <span id="quiz-count-display">10</span>
+                </div>
+                <button id="quiz-start" class="black-button" type="button">Start Quiz</button>
+                <div class="below-buttons">
+                    <button id="quiz-setup-home" class="text-button" type="button">Back to Home</button>
+                </div>
+            </div>
+
+            <div id="quiz-game" class="hidden">
+                <div class="quiz-top">
+                    <div id="quiz-progress">Question 1 of 10</div>
+                    <div id="quiz-timer">0:00</div>
+                </div>
+                <div id="quiz-date" class="date-display"></div>
+                <div class="main-box"><div id="quiz-main-text"></div></div>
+                <div class="answer-box">
+                    <div id="quiz-question"></div>
+                    <div id="quiz-answers"></div>
+                </div>
+                <button id="quiz-end-early" class="text-button" type="button">End Quiz</button>
+            </div>
+
+            <div id="quiz-results" class="main-box hidden">
+                <div id="quiz-grade">A+</div>
+                <div id="quiz-score">You got 0 out of 0 correct</div>
+                <div id="quiz-message">"You should be teaching me!"</div>
+                <button id="quiz-restart" class="black-button" type="button">Try Again</button>
+                <div class="below-buttons">
+                    <button id="quiz-results-home" class="text-button" type="button">Back to Home</button>
+                </div>
+            </div>
+        </div>
+    </section>
+</div>
+
+<!-- Classic scripts are loaded in dependency order. -->
+<script src="js/game.js"></script>
+<script src="js/title_screen.js"></script>
+<script src="js/tutorial.js"></script>
+<script src="js/guided.js"></script>
+<script src="js/endless.js"></script>
+<script src="js/practice.js"></script>
+<script src="js/quiz.js"></script>
+</body>
+</html>
